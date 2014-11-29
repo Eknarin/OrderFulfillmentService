@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.ku.orderfulfillment.entity.Order;
+import org.ku.orderfulfillment.service.DaoFactory;
 import org.ku.orderfulfillment.service.OrderDao;
 
 /**
@@ -40,8 +41,7 @@ public class OrderResource {
 	private OrderDao dao;
 	
 	public OrderResource(){
-		//TODO
-		//dao = MemDaoFactory.getInstance().getContactDao();
+		dao = DaoFactory.getInstance().getOrderDao();
 		cc = new CacheControl();
 		cc.setMaxAge(86400);
 		cc.setPrivate(true);
@@ -55,6 +55,7 @@ public class OrderResource {
 	@Produces(MediaType.APPLICATION_XML)
 	public Response getContacts() {
 		GenericEntity<List<Order>> ent = new GenericEntity<List<Order>>(dao.findAll()){};
+		System.out.println("getget");
 		
 		//EntityTag etag =  new EntityTag(ent.hashCode()+"");
 		return Response.ok(ent).cacheControl(cc).build();
