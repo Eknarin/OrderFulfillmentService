@@ -95,7 +95,7 @@ Order fulfiller select delete the specific order from the order list. The order 
 * [Online API Document](https://docs.google.com/document/d/1L6OOY9A68hwQ-QJjaWAAZAKGnS31ZiXh1P3-_lgny4s/edit?usp=sharing)
 
 ## Design
-* [Domain Design of Order](https://docs.google.com/drawings/d/1lcKgqQiR_A4yD_TW3QE5BHE_GkrkW-KHhvpIsrvY0Dw/edit?usp=sharing)
+* [Domain Design of Order](https://docs.google.com/drawings/d/1d1F-2GIwgM1IFwb965FvPROm4TsFpRhgsky5ZbVx0i4/edit?usp=sharing)
 * [SSD:Place order](https://docs.google.com/drawings/d/1XZY_FO9gRhPT2xQOgvdKUU1Gy6yEnUnTmgivQnZfEsQ/edit?usp=sharing)
 * [SSD:Get order status](https://docs.google.com/drawings/d/1U-1y4WC9OOypi7_ME-ieggCHqoAw2igp735n1NtPqyY/edit?usp=sharing)
 * [SSD:Update Order](https://docs.google.com/drawings/d/12zj5KmVS9yWLgFNWEQY1IOlcXtSIw07xulZCbQDIIdY/edit?usp=sharing)
