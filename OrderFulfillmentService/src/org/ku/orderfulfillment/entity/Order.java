@@ -1,5 +1,6 @@
 package org.ku.orderfulfillment.entity;
 import java.io.Serializable;
+import java.net.URI;
 import java.util.Date;
 import java.util.List;
 
@@ -33,15 +34,16 @@ public class Order implements Serializable {
 	private String orderDate;
 	private String fulfillDate;
 	private String status;
-	//TODO url ?
+	private String orderURI;
 	
 	public Order() { }
 	
-	public Order(Long exID, List<Long> list) {
+	public Order(Long exID, List<Long> list, String uri) {
 		externalID = exID;
 		itemIDList = list;
 		orderDate = (new Date()).toString();
 		status = "Waiting";
+		orderURI = uri;
 	}
 
 	public Order(long id) {
@@ -95,7 +97,14 @@ public class Order implements Serializable {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	
+
+	public String getOrderURI() {
+		return orderURI;
+	}
+
+	public void setOrderURI(String orderURI) {
+		this.orderURI = orderURI;
+	}
 	
 	//TODO
 //	@Override

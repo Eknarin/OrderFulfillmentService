@@ -45,7 +45,7 @@ public class JpaOrderDao implements OrderDao {
 			list.add(1L);
 			list.add(2L);
 			list.add(3L);
-			Order test = new Order(1234L,list);
+			Order test = new Order(1234L,list,"Test URI");
 			test.setId(id);
 			save(test);
 		}
