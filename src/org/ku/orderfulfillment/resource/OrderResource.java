@@ -1,9 +1,13 @@
 package org.ku.orderfulfillment.resource;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.inject.Singleton;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -14,56 +18,60 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.JAXBElement;
 
 import org.ku.orderfulfillment.entity.Order;
 import org.ku.orderfulfillment.service.DaoFactory;
 import org.ku.orderfulfillment.service.OrderDao;
 
 /**
- * ContactResource provides RESTful web resources using JAX-RS
- * annotations to map requests to request handling code,
- * and to inject resources into code.
- * This ContactResource can now handle If-Match and If-None-Match
- * by using ETag.
+ * ContactResource provides RESTful web resources using JAX-RS annotations to
+ * map requests to request handling code, and to inject resources into code.
+ * This ContactResource can now handle If-Match and If-None-Match by using ETag.
  * 
  * @author Sarathit Sangtaweep 5510546182
  */
 @Singleton
 @Path("/orders")
 public class OrderResource {
-	
-	//TODO
-	
-	@Context 
+
+	// TODO
+
+	@Context
 	UriInfo uriInfo;
 	private CacheControl cc;
-	
+
 	private OrderDao dao;
-	
-	public OrderResource(){
+
+	public OrderResource() {
 		dao = DaoFactory.getInstance().getOrderDao();
 		cc = new CacheControl();
 		cc.setMaxAge(86400);
 		cc.setPrivate(true);
 	}
-	
+
 	/**
 	 * Get all contacts.
+	 * 
 	 * @return all contact(s) in the contact list.
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	public Response getContacts() {
-		GenericEntity<List<Order>> ent = new GenericEntity<List<Order>>(dao.findAll()){};
+		GenericEntity<List<Order>> ent = new GenericEntity<List<Order>>(
+				dao.findAll()) {
+		};
 		System.out.println("getget");
-		
-		//EntityTag etag =  new EntityTag(ent.hashCode()+"");
+
+		// EntityTag etag = new EntityTag(ent.hashCode()+"");
 		return Response.ok(ent).cacheControl(cc).build();
-	}	
+	}
 
 	/**
 	 * Get one contact by id.
-	 * @param id id of the contact
+	 * 
+	 * @param id
+	 *            id of the contact
 	 * @return contact with specific id
 	 */
 	@GET
@@ -71,179 +79,200 @@ public class OrderResource {
 	@Produces(MediaType.APPLICATION_XML)
 	public Response getContact(@PathParam("id") long id) {
 		Order order = dao.find(id);
-		
-//		if(order != null){
-//			EntityTag etag = new EntityTag(order.hashCode()+"");
-//			
-//			if(match != null && noneMatch == null){
-//				match = match.replace("\"", "");
-//				
-//				if(!match.equals(etag.getValue())){
-//					return Response.notModified().build();
-//				}
-//			}
-//			else if(match == null && noneMatch != null){
-//				noneMatch = noneMatch.replace("\"", "");
-//				
-//				if(noneMatch.equals(etag.getValue())){
-//					return Response.notModified().build();
-//				}
-//			}
-//			return Response.ok(order).cacheControl(cc).tag(etag).build();
-//		}
-		if(order == null)
+
+		// if(order != null){
+		// EntityTag etag = new EntityTag(order.hashCode()+"");
+		//
+		// if(match != null && noneMatch == null){
+		// match = match.replace("\"", "");
+		//
+		// if(!match.equals(etag.getValue())){
+		// return Response.notModified().build();
+		// }
+		// }
+		// else if(match == null && noneMatch != null){
+		// noneMatch = noneMatch.replace("\"", "");
+		//
+		// if(noneMatch.equals(etag.getValue())){
+		// return Response.notModified().build();
+		// }
+		// }
+		// return Response.ok(order).cacheControl(cc).tag(etag).build();
+		// }
+		if (order == null)
 			return Response.status(Status.NOT_FOUND).build();
 		return Response.ok(order).cacheControl(cc).build();
 	}
 
-	//TODO
-//	/**
-//	 * Get contact(s) whose title contains the query string (substring match).
-//	 * if the query is null it will return all contacts.
-//	 * @param query String to query
-//	 * @return contact(s) whose title contains the query string 
-//	 */
-//	@GET
-//	@Produces(MediaType.APPLICATION_XML)
-//	public Response getContact(@HeaderParam("If-Match") String match, @HeaderParam("If-None-Match") String noneMatch, @QueryParam("title") String query) {
-//		if(query == null) return getContacts();
-//		
-//		List<Contact> list = dao.findByTitle(query);
-//		GenericEntity<List<Contact>> ent = new GenericEntity<List<Contact>>(list){};
-//		EntityTag etag = new EntityTag(ent.hashCode()+"");
-//		
-//		if(!list.isEmpty()){
-//		
-//			if(match != null && noneMatch == null){
-//				return Response.ok(ent).cacheControl(cc).tag(etag).build();
-//			}
-//			else if(match == null && noneMatch != null){
-//				noneMatch = noneMatch.replace("\"", "");
-//				
-//				if(noneMatch.equals(etag.getValue())){
-//					return Response.notModified().build();
-//				}
-//				else{
-//					return Response.ok(ent).cacheControl(cc).tag(etag).build();
-//				}
-//			}
-//		}
-//		return Response.status(Status.NOT_FOUND).build();
-//	}
-//	
-//
-//	/**
-//	 * Create a new contact.
-//	 * If contact id is omitted or 0, the server will assign a unique ID and return it as the Location header.
-//	 * @param contact contact
-//	 * @return URI location
-//	 */
-//	@POST
-//	@Consumes(MediaType.APPLICATION_XML)
-//	public Response postContact(@HeaderParam("If-Match") String match, @HeaderParam("If-None-Match") String noneMatch, JAXBElement<Contact> contact) {
-//		Contact c = (Contact)contact.getValue();
-//		if(dao.find(c.getId()) == null){
-//			
-//			boolean success = dao.save(c);
-//			if(success){
+	// TODO
+	// /**
+	// * Get contact(s) whose title contains the query string (substring match).
+	// * if the query is null it will return all contacts.
+	// * @param query String to query
+	// * @return contact(s) whose title contains the query string
+	// */
+	// @GET
+	// @Produces(MediaType.APPLICATION_XML)
+	// public Response getContact(@HeaderParam("If-Match") String match,
+	// @HeaderParam("If-None-Match") String noneMatch, @QueryParam("title")
+	// String query) {
+	// if(query == null) return getContacts();
+	//
+	// List<Contact> list = dao.findByTitle(query);
+	// GenericEntity<List<Contact>> ent = new
+	// GenericEntity<List<Contact>>(list){};
+	// EntityTag etag = new EntityTag(ent.hashCode()+"");
+	//
+	// if(!list.isEmpty()){
+	//
+	// if(match != null && noneMatch == null){
+	// return Response.ok(ent).cacheControl(cc).tag(etag).build();
+	// }
+	// else if(match == null && noneMatch != null){
+	// noneMatch = noneMatch.replace("\"", "");
+	//
+	// if(noneMatch.equals(etag.getValue())){
+	// return Response.notModified().build();
+	// }
+	// else{
+	// return Response.ok(ent).cacheControl(cc).tag(etag).build();
+	// }
+	// }
+	// }
+	// return Response.status(Status.NOT_FOUND).build();
+	// }
+	//
+	//
+	/**
+	 * Create a new contact. If contact id is omitted or 0, the server will
+	 * assign a unique ID and return it as the Location header.
+	 * 
+	 * @param contact
+	 *            contact
+	 * @return URI location
+	 */
+	@POST
+	@Consumes(MediaType.APPLICATION_XML)
+	public Response postOrder(JAXBElement<Order> order) {
+		System.out.println("asd");
+		Order o = (Order) order.getValue();
+		if (dao.find(o.getId()) == null) {
+			boolean success = dao.save(o);
+			if (success) {
 //				try {
-//					
-//					EntityTag etag = new EntityTag(c.hashCode()+"");
-//					return Response.created(new URI(uriInfo.getAbsolutePath() + "" + c.getId()))
-//							.type(MediaType.APPLICATION_XML).entity(c).cacheControl(cc).tag(etag).build();
-//					
-//				} catch (URISyntaxException e) {}
-//			}
+//
+//					EntityTag etag = new EntityTag(c.hashCode() + "");
+//					return Response
+//							.created(
+//									new URI(uriInfo.getAbsolutePath() + ""
+//											+ c.getId()))
+//							.type(MediaType.APPLICATION_XML).entity(c)
+//							.cacheControl(cc).tag(etag).build();
+//
+//				} catch (URISyntaxException e) {
+//				}
+				try {
+					return Response.created(new URI(uriInfo.getAbsolutePath()+""+o.getId())).cacheControl(cc).build();
+				} catch (URISyntaxException e) {
+					System.out.println("Error-POST");
+				}
+			}
 //			return Response.status(Status.BAD_REQUEST).build();
-//		}
-//		else{
-//			return Response.status(Status.CONFLICT).location(uriInfo.getRequestUri()).entity(c).build();
-//		}
-//		
-//	}
-//	
-//	/**
-//	 * Update a contact. Only update the attributes supplied in request body.
-//	 * @param id id
-//	 * @param contact contact
-//	 * @return URI location or no content if the updating contact is null.
-//	 */
-//	@PUT
-//	@Path("{id}")
-//	@Consumes(MediaType.APPLICATION_XML)
-//	public Response putContact(@HeaderParam("If-Match") String match, @HeaderParam("If-None-Match") String noneMatch, @PathParam("id") long id, JAXBElement<Contact> contact){
-//		
-//		Contact c = dao.find(id);
-//		Contact update = (Contact)contact.getValue();
-//		boolean success = false;
-//		
-//		
-//		if(c != null){
-//			c.forceApplyUpdate(update);
-//			EntityTag etag = new EntityTag(c.hashCode()+"");
-//			
-//			if(match != null && noneMatch == null){
-//				match = match.replace("\"", "");
-//				
-//				if(!match.equals(etag.getValue())){
-//					return Response.status(Status.PRECONDITION_FAILED).build();
-//				}
-//			}
-//			else if(match == null && noneMatch != null){
-//				noneMatch = noneMatch.replace("\"", "");
-//				
-//				if(noneMatch.equals(etag.getValue())){
-//					return Response.status(Status.PRECONDITION_FAILED).build();
-//				}
-//			}
-//			
-//			if(id == update.getId()){
-//				success = dao.update(c);
-//			}
-//			if(success){
-//				return Response.ok(uriInfo.getAbsolutePath()+"").build();
-//			}
-//			Response.status(Status.BAD_REQUEST).build();
-//		}
-//		return Response.status(Status.NOT_FOUND).build();
-//	}
-//	
-//	/**
-//	 * Delete a contact with the matching id.
-//	 * @param id id
-//	 * @return message for deleted id.
-//	 */
-//	@DELETE
-//	@Path("{id}")
-//	@Produces(MediaType.APPLICATION_XML)
-//	public Response deleteContact(@HeaderParam("If-Match") String match, @HeaderParam("If-None-Match") String noneMatch, @PathParam("id") long id){
-//		Contact c = dao.find(id);
-//		boolean success = false;
-//		
-//		if(c != null){
-//			EntityTag etag = new EntityTag(c.hashCode()+"");
-//			
-//			if(match != null && noneMatch == null){
-//				match = match.replace("\"", "");
-//				
-//				if(!match.equals(etag.getValue())){
-//					return Response.status(Status.PRECONDITION_FAILED).build();
-//				}
-//			}
-//			else if(match == null && noneMatch != null){
-//				noneMatch = noneMatch.replace("\"", "");
-//				
-//				if(noneMatch.equals(etag.getValue())){
-//					return Response.status(Status.PRECONDITION_FAILED).build();
-//				}
-//			}
-//			
-//			success = dao.delete(id);
-//			if(success){
-//				return Response.ok().build();
-//			}
-//		}
-//		return Response.status(Status.BAD_REQUEST).build();
-//	}
-}
+			
+		} else {
+			Response.status(Status.CONFLICT).location(uriInfo.getRequestUri()).entity(o).build();
+//			return Response.status(Status.CONFLICT)
+//					.location(uriInfo.getRequestUri()).entity(c).build();
+		}
+		return Response.status(Status.CONFLICT).build();
 
+	}
+	//
+	// /**
+	// * Update a contact. Only update the attributes supplied in request body.
+	// * @param id id
+	// * @param contact contact
+	// * @return URI location or no content if the updating contact is null.
+	// */
+	// @PUT
+	// @Path("{id}")
+	// @Consumes(MediaType.APPLICATION_XML)
+	// public Response putContact(@HeaderParam("If-Match") String match,
+	// @HeaderParam("If-None-Match") String noneMatch, @PathParam("id") long id,
+	// JAXBElement<Contact> contact){
+	//
+	// Contact c = dao.find(id);
+	// Contact update = (Contact)contact.getValue();
+	// boolean success = false;
+	//
+	//
+	// if(c != null){
+	// c.forceApplyUpdate(update);
+	// EntityTag etag = new EntityTag(c.hashCode()+"");
+	//
+	// if(match != null && noneMatch == null){
+	// match = match.replace("\"", "");
+	//
+	// if(!match.equals(etag.getValue())){
+	// return Response.status(Status.PRECONDITION_FAILED).build();
+	// }
+	// }
+	// else if(match == null && noneMatch != null){
+	// noneMatch = noneMatch.replace("\"", "");
+	//
+	// if(noneMatch.equals(etag.getValue())){
+	// return Response.status(Status.PRECONDITION_FAILED).build();
+	// }
+	// }
+	//
+	// if(id == update.getId()){
+	// success = dao.update(c);
+	// }
+	// if(success){
+	// return Response.ok(uriInfo.getAbsolutePath()+"").build();
+	// }
+	// Response.status(Status.BAD_REQUEST).build();
+	// }
+	// return Response.status(Status.NOT_FOUND).build();
+	// }
+	//
+	// /**
+	// * Delete a contact with the matching id.
+	// * @param id id
+	// * @return message for deleted id.
+	// */
+	// @DELETE
+	// @Path("{id}")
+	// @Produces(MediaType.APPLICATION_XML)
+	// public Response deleteContact(@HeaderParam("If-Match") String match,
+	// @HeaderParam("If-None-Match") String noneMatch, @PathParam("id") long
+	// id){
+	// Contact c = dao.find(id);
+	// boolean success = false;
+	//
+	// if(c != null){
+	// EntityTag etag = new EntityTag(c.hashCode()+"");
+	//
+	// if(match != null && noneMatch == null){
+	// match = match.replace("\"", "");
+	//
+	// if(!match.equals(etag.getValue())){
+	// return Response.status(Status.PRECONDITION_FAILED).build();
+	// }
+	// }
+	// else if(match == null && noneMatch != null){
+	// noneMatch = noneMatch.replace("\"", "");
+	//
+	// if(noneMatch.equals(etag.getValue())){
+	// return Response.status(Status.PRECONDITION_FAILED).build();
+	// }
+	// }
+	//
+	// success = dao.delete(id);
+	// if(success){
+	// return Response.ok().build();
+	// }
+	// }
+	// return Response.status(Status.BAD_REQUEST).build();
+	// }
+}
