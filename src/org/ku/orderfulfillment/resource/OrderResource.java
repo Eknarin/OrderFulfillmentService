@@ -155,11 +155,11 @@ public class OrderResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_XML)
 	public Response postOrder(JAXBElement<Order> order) {
-		System.out.println("asd");
 		Order o = (Order) order.getValue();
 		if (dao.find(o.getId()) == null) {
 			o.setOrderDate((new Date()).toString());
 			o.setStatus("Waiting");
+			//Test
 			boolean success = dao.save(o);
 			if (success) {
 //				try {
