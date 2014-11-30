@@ -2,7 +2,17 @@ package org.ku.orderfulfillment.service;
 
 
 /**
+ * DaoFactory defines methods for obtaining instance of data access objects.
+ * To create DAO you first get an instance of a concrete factory by invoking
+ * <p>
+ * <tt>DaoFactory factory = DaoFactory.getInstance(); </tt>
+ * <p>
+ * Then use the <tt>factory</tt> object to get instances of actual DAO.
+ * This factory is an abstract class.  There are concrete subclasses for
+ * each persistence mechanism.  You can add your own factory by subclassing
+ * this factory.
  * 
+ * @author Eknarin, Natcha, Natchanon, Sarathit
  */
 public abstract class DaoFactory {
 	// singleton instance of this factory
@@ -38,6 +48,10 @@ public abstract class DaoFactory {
 	 */
 	public abstract void shutdown();
 	
+	/**
+	 * Set DaoFactory
+	 * @param factory a DaoFactory
+	 */
 	public static void setFactory(DaoFactory factory){
 		DaoFactory.factory = factory;
 	}
