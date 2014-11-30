@@ -209,10 +209,8 @@ public class OrderResource {
 	 @PUT
 	 @Path("fulfiller/fulfill/{id}")
 	 public Response fulfillOrder(@PathParam("id") long id){
-		 System.out.println("PUT-UPDATE-FULFILL");
-		 
-		 Order o = dao.find(id);
-		
+		 System.out.println("PUT-UPDATE-FULFILL");		 
+		 Order o = dao.find(id);		
 		 if(o != null){
 			 if(o.getStatus().equals("In Process")){
 				 o.updateStatus("Fullfilled");
