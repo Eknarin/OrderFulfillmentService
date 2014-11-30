@@ -39,19 +39,13 @@ import org.ku.orderfulfillment.service.OrderDao;
 @Path("/orders")
 public class OrderResource {
 
-	// TODO
-	
 	@Context
 	UriInfo uriInfo;
-	private CacheControl cc;
 
 	private OrderDao dao;
 
 	public OrderResource() {
 		dao = DaoFactory.getInstance().getOrderDao();
-		cc = new CacheControl();
-		cc.setMaxAge(86400);
-		cc.setPrivate(true);
 	}
 
 	/**
@@ -64,7 +58,7 @@ public class OrderResource {
 	public Response getOrders() {
 		System.out.println("GETALL");
 		GenericEntity<List<Order>> ent = new GenericEntity<List<Order>>(dao.findAll()){};
-		return Response.ok(ent).cacheControl(cc).build();
+		return Response.ok(ent).build();
 	}
 
 	/**
@@ -81,7 +75,7 @@ public class OrderResource {
 		System.out.println("GET BY ID");
 		if (order == null)
 			return Response.status(Status.NOT_FOUND).build();
-		return Response.ok(order).cacheControl(cc).build();
+		return Response.ok(order).build();
 	}
 
 	/**
@@ -105,7 +99,7 @@ public class OrderResource {
 			boolean success = dao.save(o);
 			if (success) {
 				try {
-					return Response.created(new URI(uriInfo.getAbsolutePath()+""+o.getId())).cacheControl(cc).build();
+					return Response.created(new URI(uriInfo.getAbsolutePath()+""+o.getId())).build();
 				} catch (URISyntaxException e) {
 					System.out.println("Error-POST");
 				}
@@ -143,7 +137,7 @@ public class OrderResource {
 					 success = dao.update(o);
 				 }
 				 if(success){
-					 return Response.ok(uriInfo.getAbsolutePath()+"").cacheControl(cc).build();
+					 return Response.ok(uriInfo.getAbsolutePath()+"").build();
 				 }
 			 }
 			 return Response.status(Status.BAD_REQUEST).build();
@@ -169,7 +163,7 @@ public class OrderResource {
 			 if(o.getStatus().equals("Waiting")){
 				 o.cancelOrder();
 				 dao.update(o);
-				 return Response.ok(uriInfo.getAbsolutePath()+"").cacheControl(cc).build();
+				 return Response.ok(uriInfo.getAbsolutePath()+"").build();
 			 }
 			 return Response.status(Status.BAD_REQUEST).build();
 		 } 
@@ -193,7 +187,7 @@ public class OrderResource {
 			 if(o.getStatus().equals("Waiting") || o.getStatus().equals("In Process")){
 				 o.updateStatus("In Process");
 				 dao.update(o);
-				 return Response.ok(uriInfo.getAbsolutePath()+"").cacheControl(cc).build();
+				 return Response.ok(uriInfo.getAbsolutePath()+"").build();
 			 }
 			 return Response.status(Status.BAD_REQUEST).build();
 		 } 
@@ -217,7 +211,7 @@ public class OrderResource {
 				 o.setFulfillDate((new Date()).toString());	 
 				 dao.update(o);
 				 
-				 return Response.ok(uriInfo.getAbsolutePath()+"").cacheControl(cc).build();
+				 return Response.ok(uriInfo.getAbsolutePath()+"").build();
 			 }
 			 return Response.status(Status.BAD_REQUEST).build();
 		 } 
