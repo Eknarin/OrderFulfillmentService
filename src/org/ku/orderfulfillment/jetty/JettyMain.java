@@ -11,7 +11,7 @@ import org.ku.orderfulfillment.service.jpa.JpaDaoFactory;
  * Main class for running the application and set path of the url
  * which link to the resource.
  * 
- *@author Sarathit Sangtaweep 5510546182
+ * @author Sarathit, Eknarin, Natcha, Natchanon
  */
 public class JettyMain {
 	

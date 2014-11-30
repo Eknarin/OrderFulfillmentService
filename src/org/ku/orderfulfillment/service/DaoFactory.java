@@ -5,7 +5,7 @@ package org.ku.orderfulfillment.service;
  * DaoFactory defines methods for obtaining instance of data access objects.
  * This factory is an abstract class.
  * 
- * @author Eknarin, Natcha, Natchanon, Sarathit
+ * @author Sarathit, Eknarin, Natcha, Natchanon
  */
 public abstract class DaoFactory {
 	// singleton instance of this factory

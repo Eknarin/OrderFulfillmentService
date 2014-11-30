@@ -13,7 +13,7 @@ import org.ku.orderfulfillment.service.OrderDao;
 /**
  * Jpa DAO Factory
  * 
- * @author Eknarin, Natcha, Natchanon, Sarathit
+ * @author Sarathit, Eknarin, Natcha, Natchanon
  */
 public class JpaDaoFactory extends DaoFactory {
 	private static final String PERSISTENCE_UNIT = "orders";

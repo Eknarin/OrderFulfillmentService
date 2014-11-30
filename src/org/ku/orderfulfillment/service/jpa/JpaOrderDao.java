@@ -21,7 +21,7 @@ import org.ku.orderfulfillment.service.OrderDao;
  * To get an instance of this class use:
  * dao = DaoFactory.getInstance().getOrderDao()
  * 
- * @author Eknarin, Natcha, Natchanon, Sarathit
+ * @author Sarathit, Eknarin, Natcha, Natchanon
  */
 public class JpaOrderDao implements OrderDao {
 	
@@ -62,17 +62,6 @@ public class JpaOrderDao implements OrderDao {
 		List<Order> orderList = query.getResultList();
 		return Collections.unmodifiableList(orderList);
 	}
-
-//	@Override
-//	public List<Order> findByTitle(String titlestr) {
-//		// LIKE does string match using patterns.
-//		Query query = em.createQuery("select c from Order c where LOWER(c.title) LIKE :title");
-//		// % is wildcard that matches anything
-//		query.setParameter("title", "%"+titlestr.toLowerCase()+"%");
-//		// now why bother to copy one list to another list?
-//		java.util.List<Order> result = Lists.newArrayList( query.getResultList() );
-//		return result;
-//	}
 
 	@Override
 	public boolean delete(long id) {

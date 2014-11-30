@@ -15,8 +15,11 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * An order will be placed from an e-commerce, the order has
+ * externalID, id(auto-gen), List of ordered item id, order date,
+ * fulfill date, status and the url.
  * 
- * @author Sarathit
+ * @author Sarathit, Eknarin, Natcha, Natchanon
  */
 @Entity
 @Table(name = "orders")
@@ -36,16 +39,20 @@ public class Order implements Serializable {
 	private String status;
 	private String orderURI;
 	
+	/**constructor*/
 	public Order() { }
 	
+	/**constructor*/
 	public Order(Long exID, List<Long> list, String uri) {
 		externalID = exID;
 		itemIDList = list;
 		orderDate = (new Date()).toString();
+		fulfillDate = "-";
 		status = "Waiting";
 		orderURI = uri;
 	}
 
+	/**constructor*/
 	public Order(long id) {
 		this.id = id;
 	}
@@ -106,7 +113,6 @@ public class Order implements Serializable {
 		this.orderURI = orderURI;
 	}
 	
-	//TODO
 	@Override
 	public String toString() {
 		return String.format("[%ld] %s (%s)", id, orderDate, status);

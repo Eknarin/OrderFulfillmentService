@@ -30,17 +30,17 @@ import org.ku.orderfulfillment.service.DaoFactory;
 import org.ku.orderfulfillment.service.OrderDao;
 
 /**
- * ContactResource provides RESTful web resources using JAX-RS annotations to
+ * OrderResource provides RESTful web resources using JAX-RS annotations to
  * map requests to request handling code, and to inject resources into code.
- * This ContactResource can now handle If-Match and If-None-Match by using ETag.
  * 
- * @author Sarathit Sangtaweep 5510546182
+ * @author Sarathit, Eknarin, Natcha, Natchanon
  */
 @Singleton
 @Path("/orders")
 public class OrderResource {
 
 	// TODO
+	
 	@Context
 	UriInfo uriInfo;
 	private CacheControl cc;
@@ -100,6 +100,7 @@ public class OrderResource {
 			
 			o.setOrderDate((new Date()).toString());
 			o.setStatus("Waiting");
+			o.setFulfillDate("-");
 
 			boolean success = dao.save(o);
 			if (success) {
@@ -175,7 +176,6 @@ public class OrderResource {
 		 return Response.status(Status.NOT_FOUND).build();
 	 }
 	 
-	 //TODO ADD KEY
 	 /**
 	  * (For Fulfiller)
 	  * Update an order status
@@ -200,7 +200,6 @@ public class OrderResource {
 		 return Response.status(Status.NOT_FOUND).build();
 	 }
 	 
-	 //TODO ADD KEY
 	 /**
 	  * (For Fulfiller)
 	  * Update an order status
@@ -217,7 +216,9 @@ public class OrderResource {
 		 if(o != null){
 			 if(o.getStatus().equals("In Process")){
 				 o.updateStatus("Fullfilled");
+				 o.setFulfillDate((new Date()).toString());	 
 				 dao.update(o);
+				 
 				 return Response.ok(uriInfo.getAbsolutePath()+"").cacheControl(cc).build();
 			 }
 			 return Response.status(Status.BAD_REQUEST).build();

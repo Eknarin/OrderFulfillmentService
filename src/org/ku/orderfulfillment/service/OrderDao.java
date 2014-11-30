@@ -7,7 +7,7 @@ import org.ku.orderfulfillment.entity.Order;
  * Interface defines the operations required by 
  * a DAO for Order.
  * 
- * @author Eknarin, Natcha, Natchanon, Sarathit
+ * @author Sarathit, Eknarin, Natcha, Natchanon
  */
 public interface OrderDao {
 
