@@ -7,13 +7,17 @@ import java.util.List;
 
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -37,7 +41,6 @@ import org.ku.orderfulfillment.service.OrderDao;
 public class OrderResource {
 
 	// TODO
-
 	@Context
 	UriInfo uriInfo;
 	private CacheControl cc;
@@ -52,230 +55,210 @@ public class OrderResource {
 	}
 
 	/**
-	 * Get all contacts.
+	 * Get all orders.
 	 * 
-	 * @return all contact(s) in the contact list.
+	 * @return all order(s) in the order list.
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	public Response getContacts() {
-		GenericEntity<List<Order>> ent = new GenericEntity<List<Order>>(
-				dao.findAll()) {
-		};
-		System.out.println("getget");
-
-		// EntityTag etag = new EntityTag(ent.hashCode()+"");
+	public Response getOrders() {
+		System.out.println("GETALL");
+		GenericEntity<List<Order>> ent = new GenericEntity<List<Order>>(dao.findAll()){};
 		return Response.ok(ent).cacheControl(cc).build();
 	}
 
 	/**
-	 * Get one contact by id.
+	 * Get one order by id.
 	 * 
-	 * @param id
-	 *            id of the contact
-	 * @return contact with specific id
+	 * @param id id of the order
+	 * @return order with specific id
 	 */
 	@GET
 	@Path("{id}")
 	@Produces(MediaType.APPLICATION_XML)
-	public Response getContact(@PathParam("id") long id) {
+	public Response getOrderById(@PathParam("id") long id) {
 		Order order = dao.find(id);
-
-		// if(order != null){
-		// EntityTag etag = new EntityTag(order.hashCode()+"");
-		//
-		// if(match != null && noneMatch == null){
-		// match = match.replace("\"", "");
-		//
-		// if(!match.equals(etag.getValue())){
-		// return Response.notModified().build();
-		// }
-		// }
-		// else if(match == null && noneMatch != null){
-		// noneMatch = noneMatch.replace("\"", "");
-		//
-		// if(noneMatch.equals(etag.getValue())){
-		// return Response.notModified().build();
-		// }
-		// }
-		// return Response.ok(order).cacheControl(cc).tag(etag).build();
-		// }
+		System.out.println("GET BY ID");
 		if (order == null)
 			return Response.status(Status.NOT_FOUND).build();
 		return Response.ok(order).cacheControl(cc).build();
 	}
 
-	// TODO
-	// /**
-	// * Get contact(s) whose title contains the query string (substring match).
-	// * if the query is null it will return all contacts.
-	// * @param query String to query
-	// * @return contact(s) whose title contains the query string
-	// */
-	// @GET
-	// @Produces(MediaType.APPLICATION_XML)
-	// public Response getContact(@HeaderParam("If-Match") String match,
-	// @HeaderParam("If-None-Match") String noneMatch, @QueryParam("title")
-	// String query) {
-	// if(query == null) return getContacts();
-	//
-	// List<Contact> list = dao.findByTitle(query);
-	// GenericEntity<List<Contact>> ent = new
-	// GenericEntity<List<Contact>>(list){};
-	// EntityTag etag = new EntityTag(ent.hashCode()+"");
-	//
-	// if(!list.isEmpty()){
-	//
-	// if(match != null && noneMatch == null){
-	// return Response.ok(ent).cacheControl(cc).tag(etag).build();
-	// }
-	// else if(match == null && noneMatch != null){
-	// noneMatch = noneMatch.replace("\"", "");
-	//
-	// if(noneMatch.equals(etag.getValue())){
-	// return Response.notModified().build();
-	// }
-	// else{
-	// return Response.ok(ent).cacheControl(cc).tag(etag).build();
-	// }
-	// }
-	// }
-	// return Response.status(Status.NOT_FOUND).build();
-	// }
-	//
-	//
 	/**
-	 * Create a new contact. If contact id is omitted or 0, the server will
-	 * assign a unique ID and return it as the Location header.
+	 * Create a new order. If order id is omitted or 0, the server will
+	 * assign a unique ID and return it as the location header.
 	 * 
-	 * @param contact
-	 *            contact
+	 * @param order order
 	 * @return URI location
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_XML)
 	public Response postOrder(JAXBElement<Order> order) {
+		System.out.println("POST");
 		Order o = (Order) order.getValue();
 		if (dao.find(o.getId()) == null) {
+			
 			o.setOrderDate((new Date()).toString());
 			o.setStatus("Waiting");
-			//Test
+
 			boolean success = dao.save(o);
 			if (success) {
-//				try {
-//
-//					EntityTag etag = new EntityTag(c.hashCode() + "");
-//					return Response
-//							.created(
-//									new URI(uriInfo.getAbsolutePath() + ""
-//											+ c.getId()))
-//							.type(MediaType.APPLICATION_XML).entity(c)
-//							.cacheControl(cc).tag(etag).build();
-//
-//				} catch (URISyntaxException e) {
-//				}
 				try {
 					return Response.created(new URI(uriInfo.getAbsolutePath()+""+o.getId())).cacheControl(cc).build();
 				} catch (URISyntaxException e) {
 					System.out.println("Error-POST");
 				}
 			}
-//			return Response.status(Status.BAD_REQUEST).build();
-			
-		} else {
+			return Response.status(Status.BAD_REQUEST).build();	
+		}
+		else {
 			Response.status(Status.CONFLICT).location(uriInfo.getRequestUri()).entity(o).build();
-//			return Response.status(Status.CONFLICT)
-//					.location(uriInfo.getRequestUri()).entity(c).build();
 		}
 		return Response.status(Status.CONFLICT).build();
 
 	}
-	//
-	// /**
-	// * Update a contact. Only update the attributes supplied in request body.
-	// * @param id id
-	// * @param contact contact
-	// * @return URI location or no content if the updating contact is null.
-	// */
-	// @PUT
-	// @Path("{id}")
-	// @Consumes(MediaType.APPLICATION_XML)
-	// public Response putContact(@HeaderParam("If-Match") String match,
-	// @HeaderParam("If-None-Match") String noneMatch, @PathParam("id") long id,
-	// JAXBElement<Contact> contact){
-	//
-	// Contact c = dao.find(id);
-	// Contact update = (Contact)contact.getValue();
-	// boolean success = false;
-	//
-	//
-	// if(c != null){
-	// c.forceApplyUpdate(update);
-	// EntityTag etag = new EntityTag(c.hashCode()+"");
-	//
-	// if(match != null && noneMatch == null){
-	// match = match.replace("\"", "");
-	//
-	// if(!match.equals(etag.getValue())){
-	// return Response.status(Status.PRECONDITION_FAILED).build();
-	// }
-	// }
-	// else if(match == null && noneMatch != null){
-	// noneMatch = noneMatch.replace("\"", "");
-	//
-	// if(noneMatch.equals(etag.getValue())){
-	// return Response.status(Status.PRECONDITION_FAILED).build();
-	// }
-	// }
-	//
-	// if(id == update.getId()){
-	// success = dao.update(c);
-	// }
-	// if(success){
-	// return Response.ok(uriInfo.getAbsolutePath()+"").build();
-	// }
-	// Response.status(Status.BAD_REQUEST).build();
-	// }
-	// return Response.status(Status.NOT_FOUND).build();
-	// }
-	//
-	// /**
-	// * Delete a contact with the matching id.
-	// * @param id id
-	// * @return message for deleted id.
-	// */
-	// @DELETE
-	// @Path("{id}")
-	// @Produces(MediaType.APPLICATION_XML)
-	// public Response deleteContact(@HeaderParam("If-Match") String match,
-	// @HeaderParam("If-None-Match") String noneMatch, @PathParam("id") long
-	// id){
-	// Contact c = dao.find(id);
-	// boolean success = false;
-	//
-	// if(c != null){
-	// EntityTag etag = new EntityTag(c.hashCode()+"");
-	//
-	// if(match != null && noneMatch == null){
-	// match = match.replace("\"", "");
-	//
-	// if(!match.equals(etag.getValue())){
-	// return Response.status(Status.PRECONDITION_FAILED).build();
-	// }
-	// }
-	// else if(match == null && noneMatch != null){
-	// noneMatch = noneMatch.replace("\"", "");
-	//
-	// if(noneMatch.equals(etag.getValue())){
-	// return Response.status(Status.PRECONDITION_FAILED).build();
-	// }
-	// }
-	//
-	// success = dao.delete(id);
-	// if(success){
-	// return Response.ok().build();
-	// }
-	// }
-	// return Response.status(Status.BAD_REQUEST).build();
-	// }
+	
+	 /**
+	  * (For E-Commerce)
+	  * Update an order. Only update the attributes supplied in request body.
+	  * @param id internal id
+	  * @param order order
+	  * @return URI location or no content if the updating order is null.
+	  */
+	 @PUT
+	 @Path("{id}")
+	 @Consumes(MediaType.APPLICATION_XML)
+	 public Response updateOrder(@PathParam("id") long id, JAXBElement<Order> order){
+		 System.out.println("PUT-UPDATE");
+		 
+		 Order o = dao.find(id);
+		 Order update = (Order)order.getValue();
+		 boolean success = false;	
+		
+		 if(o != null){
+			 if(o.getStatus().equals("Waiting") && checkItemList(o)){
+				 o.applyUpdate(update);	 
+				 if(id == update.getId()){
+					 success = dao.update(o);
+				 }
+				 if(success){
+					 return Response.ok(uriInfo.getAbsolutePath()+"").cacheControl(cc).build();
+				 }
+			 }
+			 return Response.status(Status.BAD_REQUEST).build();
+		 } 
+		 return Response.status(Status.NOT_FOUND).build();
+	 }
+	 
+	 /**
+	  * (For E-Commerce)
+	  * Cancel an order
+	  * @param id internal id
+	  * @return URI location or no content if the updating order is null.
+	  */
+	 @PUT
+	 @Path("cancel/{id}")
+	 //@Consumes(MediaType.APPLICATION_XML)
+	 public Response cancelOrder(@PathParam("id") long id){
+		 System.out.println("PUT-CANCEL");
+		 
+		 Order o = dao.find(id);	
+		
+		 if(o != null){
+			 if(o.getStatus().equals("Waiting")){
+				 o.cancelOrder();
+				 dao.update(o);
+				 return Response.ok(uriInfo.getAbsolutePath()+"").cacheControl(cc).build();
+			 }
+			 return Response.status(Status.BAD_REQUEST).build();
+		 } 
+		 return Response.status(Status.NOT_FOUND).build();
+	 }
+	 
+	 //TODO ADD KEY
+	 /**
+	  * (For Fulfiller)
+	  * Update an order status
+	  * @param id internal id
+	  * @return URI location or no content if the updating order is null.
+	  */
+	 @PUT
+	 @Path("fulfiller/grab/{id}")
+	 public Response grabOrder(@PathParam("id") long id){
+		 System.out.println("PUT-UPDATE-GRAB");
+		 
+		 Order o = dao.find(id);
+		
+		 if(o != null){
+			 if(o.getStatus().equals("Waiting") || o.getStatus().equals("In Process")){
+				 o.updateStatus("In Process");
+				 dao.update(o);
+				 return Response.ok(uriInfo.getAbsolutePath()+"").cacheControl(cc).build();
+			 }
+			 return Response.status(Status.BAD_REQUEST).build();
+		 } 
+		 return Response.status(Status.NOT_FOUND).build();
+	 }
+	 
+	 //TODO ADD KEY
+	 /**
+	  * (For Fulfiller)
+	  * Update an order status
+	  * @param id internal id
+	  * @return URI location or no content if the updating order is null.
+	  */
+	 @PUT
+	 @Path("fulfiller/fulfill/{id}")
+	 public Response fulfillOrder(@PathParam("id") long id){
+		 System.out.println("PUT-UPDATE-FULFILL");
+		 
+		 Order o = dao.find(id);
+		
+		 if(o != null){
+			 if(o.getStatus().equals("In Process")){
+				 o.updateStatus("Fullfilled");
+				 dao.update(o);
+				 return Response.ok(uriInfo.getAbsolutePath()+"").cacheControl(cc).build();
+			 }
+			 return Response.status(Status.BAD_REQUEST).build();
+		 } 
+		 return Response.status(Status.NOT_FOUND).build();
+	 }
+	 
+	
+	 /**
+	  * (For Fulfiller)
+	  * Delete an order with the matching id.
+	  * Delete will be possible when the order is in "Canceled" state.
+	  * @param id id
+	  * @return message for deleted id.
+	  */
+	 @DELETE
+	 @Path("fulfiller/{id}")
+	 public Response deleteOrder(@PathParam("id") long id){
+		 Order o = dao.find(id);
+		 boolean success = false;
+		
+		 if(o != null){
+			 if(o.getStatus().equals("Canceled")){
+				 success = dao.delete(id);
+				 if(success){
+					 return Response.ok().build();
+				 }
+			 }
+		 }
+		 return Response.status(Status.NO_CONTENT).build();
+	 }
+	 
+	 /**
+	  * Verify the validity of the order item.
+	  * @param o order
+	  * @return true if the order is valid; otherwise false.
+	  */
+	 private boolean checkItemList(Order o){
+		 if(o.getItemIDList().size() == 0){
+			 return false;
+		 }
+		 return true;
+	 }
 }

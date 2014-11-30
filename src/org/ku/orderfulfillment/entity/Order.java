@@ -135,8 +135,22 @@ public class Order implements Serializable {
 
 		if(update.getExternalID() >= 0) this.setExternalID(update.getExternalID());
 		if(update.getItemIDList() != null) this.setItemIDList(update.getItemIDList());
-		if(update.getOrderDate() != null) this.setOrderDate(update.getOrderDate());
 		if(update.getOrderURI() != null) this.setOrderURI(update.getOrderURI()); 
-		if(update.getStatus() != null) this.setStatus(update.getStatus());
+	}
+	
+	/**
+	 * Cancel the order.
+	 */
+	public void cancelOrder(){
+		this.setStatus("Canceled");
+	}
+	
+
+	/**
+	 * Update the status of the order.
+	 * @param status status to be updated. (Waiting, In Process, Fulfilled, Canceled)
+	 */
+	public void updateStatus(String status){
+		this.setStatus(status);
 	}
 }

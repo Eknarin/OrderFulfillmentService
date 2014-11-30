@@ -46,7 +46,7 @@ public class JettyMain {
 		server = new Server( port );
 		
 		ServletContextHandler context = new ServletContextHandler( ServletContextHandler.SESSIONS );
-		context.setContextPath("/orderfulfillment");
+		context.setContextPath("/ordf");
 		
 		ServletHolder holder = new ServletHolder( org.glassfish.jersey.servlet.ServletContainer.class );
 		
@@ -84,8 +84,7 @@ public class JettyMain {
 	 */
 	public static void stopServer(){
 		try {
-			//TODO
-			//MemDaoFactory.getInstance().shutdown();
+			JpaDaoFactory.getInstance().shutdown();
 			server.stop();
 		} catch (Exception e) {}
 	}
