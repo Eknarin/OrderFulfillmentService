@@ -11,8 +11,9 @@ import org.ku.orderfulfillment.service.DaoFactory;
 import org.ku.orderfulfillment.service.OrderDao;
 
 /**
+ * Jpa DAO Factory
  * 
- * 
+ * @author Eknarin, Natcha, Natchanon, Sarathit
  */
 public class JpaDaoFactory extends DaoFactory {
 	private static final String PERSISTENCE_UNIT = "orders";
@@ -26,6 +27,9 @@ public class JpaDaoFactory extends DaoFactory {
 		logger = Logger.getLogger(JpaDaoFactory.class.getName());
 	}
 	
+	/**
+	 * constructor of this class.
+	 */
 	public JpaDaoFactory() {
 		emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
 		em = emf.createEntityManager();

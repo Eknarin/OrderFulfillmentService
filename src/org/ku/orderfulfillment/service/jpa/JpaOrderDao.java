@@ -16,12 +16,12 @@ import org.ku.orderfulfillment.entity.Order;
 import org.ku.orderfulfillment.service.OrderDao;
 
 /**
- * Data access object for saving and retrieving contacts,
+ * Data access object for saving and retrieving orders,
  * using JPA.
  * To get an instance of this class use:
  * dao = DaoFactory.getInstance().getContactDao()
  * 
- * @author jim editted by Sarathit Sangtaweep 5510546182
+ * @author Eknarin, Natcha, Natchanon, Sarathit
  */
 public class JpaOrderDao implements OrderDao {
 	//TODO
@@ -37,7 +37,7 @@ public class JpaOrderDao implements OrderDao {
 		createTestOrder( );
 	}
 	
-	/** add contacts for testing. */
+	/** add orders for testing. */
 	private void createTestOrder( ) {
 		long id = 999; // usually we should let JPA set the id
 		if (find(id) == null) {
