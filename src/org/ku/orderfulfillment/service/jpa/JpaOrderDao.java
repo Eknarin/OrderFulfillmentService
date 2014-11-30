@@ -19,12 +19,12 @@ import org.ku.orderfulfillment.service.OrderDao;
  * Data access object for saving and retrieving orders,
  * using JPA.
  * To get an instance of this class use:
- * dao = DaoFactory.getInstance().getContactDao()
+ * dao = DaoFactory.getInstance().getOrderDao()
  * 
  * @author Eknarin, Natcha, Natchanon, Sarathit
  */
 public class JpaOrderDao implements OrderDao {
-	//TODO
+	
 	/** the EntityManager for accessing JPA persistence services. */
 	private final EntityManager em;
 	
@@ -63,16 +63,16 @@ public class JpaOrderDao implements OrderDao {
 		return Collections.unmodifiableList(orderList);
 	}
 
-	@Override
-	public List<Order> findByTitle(String titlestr) {
-		// LIKE does string match using patterns.
-		Query query = em.createQuery("select c from Order c where LOWER(c.title) LIKE :title");
-		// % is wildcard that matches anything
-		query.setParameter("title", "%"+titlestr.toLowerCase()+"%");
-		// now why bother to copy one list to another list?
-		java.util.List<Order> result = Lists.newArrayList( query.getResultList() );
-		return result;
-	}
+//	@Override
+//	public List<Order> findByTitle(String titlestr) {
+//		// LIKE does string match using patterns.
+//		Query query = em.createQuery("select c from Order c where LOWER(c.title) LIKE :title");
+//		// % is wildcard that matches anything
+//		query.setParameter("title", "%"+titlestr.toLowerCase()+"%");
+//		// now why bother to copy one list to another list?
+//		java.util.List<Order> result = Lists.newArrayList( query.getResultList() );
+//		return result;
+//	}
 
 	@Override
 	public boolean delete(long id) {
@@ -120,7 +120,7 @@ public class JpaOrderDao implements OrderDao {
 				throw new IllegalArgumentException("Can't update a null order");
 			}
 			
-			//contact.forceApplyUpdate(update);
+			order.applyUpdate(update);
 			em.merge(order);
 			tx.commit();
 			return true;

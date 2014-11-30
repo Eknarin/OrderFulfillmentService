@@ -11,7 +11,6 @@ import org.ku.orderfulfillment.entity.Order;
  */
 public interface OrderDao {
 
-	//TODO
 	
 	/** Find a order by ID in orders.
 	 * @param the id of order to find
@@ -24,20 +23,21 @@ public interface OrderDao {
 	 * There is no guarantee what implementation of
 	 * List is returned, so caller should use only
 	 * List methods (not, say ArrayList).
-	 * @return list of all contacts in persistent storage.
+	 * @return list of all orders in persistent storage.
 	 *   If no order, returns an empty list.
 	 */
 	public abstract List<Order> findAll();
 	
-	/**
-	 * Find a order whose title starts with the  
-	 * string parameter (the way Gmail does).
-	 * @param prefix a string containing the start 
-	 * of a order title.  Must not be null.
-	 * @return List of matching orders. Return an empty list
-	 * if no matches.
-	 */
-	public abstract List<Order> findByTitle(String prefix);
+	//TODO
+//	/**
+//	 * Find a order whose title starts with the  
+//	 * string parameter (the way Gmail does).
+//	 * @param prefix a string containing the start 
+//	 * of a order title.  Must not be null.
+//	 * @return List of matching orders. Return an empty list
+//	 * if no matches.
+//	 */
+//	public abstract List<Order> findByTitle(String prefix);
 
 	/**
 	 * Delete a saved order by id.
@@ -59,10 +59,10 @@ public interface OrderDao {
 	public abstract boolean save(Order order);
 
 	/**
-	 * Update a Order.  If the order with same id
+	 * Update an order.  If the order with same id
 	 * as the update is already in persistent storage,
 	 * then all fields of the order are replaced with
-	 * values in the update (including null values!).
+	 * values in the update (excluding null values).
 	 * The id of the update must match the id of a order
 	 * already persisted.  If not, false is returned.
 	 * @param update update info for the order.
