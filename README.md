@@ -101,7 +101,8 @@ Order fulfiller select delete the specific order from the order list. The order 
 * [SSD:Update Order](https://docs.google.com/drawings/d/12zj5KmVS9yWLgFNWEQY1IOlcXtSIw07xulZCbQDIIdY/edit?usp=sharing)
  
 ## Mockup
---- Coming soon ---
+* [Order List](https://docs.google.com/drawings/d/1CE-hldA53lkfRboRw5UZ3WaPl3WOZ8NPvskR2wAJgtw/edit?usp=sharing)
+* [Order Detail](https://docs.google.com/drawings/d/16bImvvNmh4kkUJ0ubP5AqpJ4yldigHQ9g-rDYrpuBj8/edit?usp=sharing)
 
 ## Out of scope
 * Handle many order fulfillers. (Now we're assuming that there is only 1 order fulfiller.)
