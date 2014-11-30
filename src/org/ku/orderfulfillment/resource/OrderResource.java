@@ -2,6 +2,7 @@ package org.ku.orderfulfillment.resource;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Singleton;
@@ -157,6 +158,8 @@ public class OrderResource {
 		System.out.println("asd");
 		Order o = (Order) order.getValue();
 		if (dao.find(o.getId()) == null) {
+			o.setOrderDate((new Date()).toString());
+			o.setStatus("Waiting");
 			boolean success = dao.save(o);
 			if (success) {
 //				try {
