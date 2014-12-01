@@ -58,7 +58,7 @@ public class OrderResource {
 	public Response getOrders() {
 		System.out.println("GETALL");
 		GenericEntity<List<Order>> ent = new GenericEntity<List<Order>>(dao.findAll()){};
-		return Response.ok(ent).build();
+		return Response.ok(ent).header("Access-Control-Allow-Origin", "*").build();
 	}
 
 	/**
