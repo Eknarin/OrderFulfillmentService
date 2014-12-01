@@ -153,7 +153,6 @@ public class OrderResource {
 	  */
 	 @PUT
 	 @Path("cancel/{id}")
-	 //@Consumes(MediaType.APPLICATION_XML)
 	 public Response cancelOrder(@PathParam("id") long id){
 		 System.out.println("PUT-CANCEL");
 		 
@@ -184,7 +183,7 @@ public class OrderResource {
 		 Order o = dao.find(id);
 		
 		 if(o != null){
-			 if(o.getStatus().equals("Waiting") || o.getStatus().equals("In Process")){
+			 if(o.getStatus().equals("Waiting")){
 				 o.updateStatus("In Process");
 				 dao.update(o);
 				 return Response.ok(uriInfo.getAbsolutePath()+"").build();
@@ -227,7 +226,7 @@ public class OrderResource {
 	  * @return message for deleted id.
 	  */
 	 @DELETE
-	 @Path("fulfiller/{id}")
+	 @Path("fulfiller/delete/{id}")
 	 public Response deleteOrder(@PathParam("id") long id){
 		 Order o = dao.find(id);
 		 boolean success = false;
