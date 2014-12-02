@@ -1,9 +1,9 @@
 package org.ku.orderfulfillment.resource;
 
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
-import java.util.List;
 
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
@@ -15,17 +15,20 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
+import org.json.JSONObject;
+import org.json.XML;
 import org.ku.orderfulfillment.entity.Order;
+import org.ku.orderfulfillment.entity.Orders;
 import org.ku.orderfulfillment.service.DaoFactory;
 import org.ku.orderfulfillment.service.OrderDao;
 
@@ -43,6 +46,7 @@ public class OrderResource {
 	UriInfo uriInfo;
 
 	private OrderDao dao;
+	public static int PRETTY_PRINT_INDENT_FACTOR = 4;
 
 	public OrderResource() {
 		dao = DaoFactory.getInstance().getOrderDao();
@@ -54,11 +58,17 @@ public class OrderResource {
 	 * @return all order(s) in the order list.
 	 */
 	@GET
-	@Produces(MediaType.APPLICATION_XML)
-	public Response getOrders() {
-		System.out.println("GETALL");
-		GenericEntity<List<Order>> ent = new GenericEntity<List<Order>>(dao.findAll()){};
-		return Response.ok(ent).header("Access-Control-Allow-Origin", "*").build();
+	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	public Response getOrders(@HeaderParam("Accept") String accept) {
+		System.out.print("GETALL ");
+		Orders orders = new Orders(dao.findAll());
+		
+		if(accept.equals(MediaType.APPLICATION_JSON)){
+			System.out.println("JSON");
+			return Response.ok(toJson(orders)).header("Access-Control-Allow-Origin", "*").build();
+		}
+		System.out.println("XML");
+		return Response.ok(orders).header("Access-Control-Allow-Origin", "*").build();
 	}
 
 	/**
@@ -69,13 +79,19 @@ public class OrderResource {
 	 */
 	@GET
 	@Path("{id}")
-	@Produces(MediaType.APPLICATION_XML)
-	public Response getOrderById(@PathParam("id") long id) {
+	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	public Response getOrderById(@PathParam("id") long id, @HeaderParam("Accept") String accept) {
 		Order order = dao.find(id);
-		System.out.println("GET BY ID");
+		System.out.print("GET BY ID ");
 		if (order == null)
 			return Response.status(Status.NOT_FOUND).build();
-		return Response.ok(order).build();
+		
+		if(accept.equals(MediaType.APPLICATION_JSON)){
+			System.out.println("JSON");
+			return Response.ok(toJson(order)).header("Access-Control-Allow-Origin", "*").build();
+		}
+		System.out.println("XML");
+		return Response.ok(order).header("Access-Control-Allow-Origin", "*").build();
 	}
 
 	/**
@@ -90,10 +106,10 @@ public class OrderResource {
 	public Response postOrder(JAXBElement<Order> order) {
 		System.out.println("POST");
 		Order o = (Order) order.getValue();
-		if (dao.find(o.getId()) == null) {
+		if (dao.find(o.getId()) == null && checkItemList(o)) {
 			
 			o.setOrderDate((new Date()).toString());
-			o.setStatus("Waiting");
+			o.setStatus("Waiting"); //TODO enum/static  
 			o.setFulfillDate("-");
 
 			boolean success = dao.save(o);
@@ -107,7 +123,7 @@ public class OrderResource {
 			return Response.status(Status.BAD_REQUEST).build();	
 		}
 		else {
-			Response.status(Status.CONFLICT).location(uriInfo.getRequestUri()).entity(o).build();
+			Response.status(Status.CONFLICT).build();
 		}
 		return Response.status(Status.CONFLICT).build();
 
@@ -131,8 +147,8 @@ public class OrderResource {
 		 boolean success = false;	
 		
 		 if(o != null){
-			 if(o.getStatus().equals("Waiting") && checkItemList(o)){
-				 o.applyUpdate(update);	 
+			 if(o.getStatus().equals("Waiting")){
+				 o.applyUpdate(update);
 				 if(id == update.getId()){
 					 success = dao.update(o);
 				 }
@@ -152,7 +168,7 @@ public class OrderResource {
 	  * @return URI location or no content if the updating order is null.
 	  */
 	 @PUT
-	 @Path("cancel/{id}")
+	 @Path("{id}/cancel")
 	 public Response cancelOrder(@PathParam("id") long id){
 		 System.out.println("PUT-CANCEL");
 		 
@@ -252,5 +268,43 @@ public class OrderResource {
 			 return false;
 		 }
 		 return true;
+	 }
+	 
+	 private String toJson(Orders o){
+		 JAXBContext context;
+		 StringWriter sw = new StringWriter();
+		 try{
+			 context = JAXBContext.newInstance(Orders.class);
+			 Marshaller marsahller = (Marshaller) context.createMarshaller();
+			 marsahller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+			 marsahller.marshal(o, sw);
+			  
+			 JSONObject xmlJSONObj = XML.toJSONObject(sw.toString());
+			 
+			 return xmlJSONObj.toString(PRETTY_PRINT_INDENT_FACTOR);
+		 } catch (JAXBException e) {
+			 System.out.println("Cannot convert XML to JSON.");
+		 }
+		 
+		 return "";
+	 }
+	 
+	 private String toJson(Order o){
+		 JAXBContext context;
+		 StringWriter sw = new StringWriter();
+		 try{
+			 context = JAXBContext.newInstance(Orders.class);
+			 Marshaller marsahller = (Marshaller) context.createMarshaller();
+			 marsahller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+			 marsahller.marshal(o, sw);
+			  
+			 JSONObject xmlJSONObj = XML.toJSONObject(sw.toString());
+			 
+			 return xmlJSONObj.toString(PRETTY_PRINT_INDENT_FACTOR);
+		 } catch (JAXBException e) {
+			 System.out.println("Cannot convert XML to JSON.");
+		 }
+		 
+		 return "";
 	 }
 }
