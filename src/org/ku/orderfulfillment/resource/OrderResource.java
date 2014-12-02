@@ -279,8 +279,19 @@ public class OrderResource {
 	  * @return true if the order is valid; otherwise false.
 	  */
 	 private boolean checkItemList(Order o){
-		 if(o.getItemIDList().size() == 0){
+		 String items = o.getItemIDList();
+		 if(items == null || items.length() == 0){
 			 return false;
+		 }
+		 
+		 char[] itemsArray = items.toCharArray();
+		 for(char c : itemsArray){
+			 if(( c >= '0' && c <= '9' ) || c == ','){
+				 continue;
+			 }
+			 else{
+				 return false;
+			 }
 		 }
 		 return true;
 	 }

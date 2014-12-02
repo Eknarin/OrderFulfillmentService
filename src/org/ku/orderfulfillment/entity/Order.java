@@ -34,11 +34,11 @@ public class Order implements Serializable {
 	@XmlAttribute
 	private long id;
 	private long externalID; 
-	private List<Long> itemIDList;
 	private String orderDate;
 	private String fulfillDate;
 	private String status;
 	private String orderURI;
+	private String itemIDList;
 	
 	/**constructor*/
 	public Order() { }
@@ -46,7 +46,7 @@ public class Order implements Serializable {
 	/**constructor*/
 	public Order(Long exID, List<Long> list, String uri) {
 		externalID = exID;
-		itemIDList = list;
+		itemIDList = listToString(list);
 		orderDate = (new Date()).toString();
 		fulfillDate = "-";
 		status = "Waiting";
@@ -74,11 +74,11 @@ public class Order implements Serializable {
 		this.externalID = externalID;
 	}
 
-	public List<Long> getItemIDList() {
+	public String getItemIDList() {
 		return itemIDList;
 	}
 
-	public void setItemIDList(List<Long> itemIDList) {
+	public void setItemIDList(String itemIDList) {
 		this.itemIDList = itemIDList;
 	}
 
@@ -159,5 +159,17 @@ public class Order implements Serializable {
 	 */
 	public void updateStatus(String status){
 		this.setStatus(status);
+	}
+	
+	public String listToString(List<Long> list){
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0 ; i < list.size() ; i++){
+			System.out.println(list.get(i));
+			sb.append(list.get(i).longValue());
+			if(i != list.size() - 1){
+				sb.append(",");
+			}
+		}
+		return sb.toString();
 	}
 }
