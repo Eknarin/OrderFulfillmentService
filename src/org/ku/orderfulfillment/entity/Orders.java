@@ -33,8 +33,4 @@ public class Orders {
 	public Orders(List<Order> list){
 		orders = list;
 	}
-	
-//	public void addOrder(Order order){
-//		orders.add(order);
-//	}
 }

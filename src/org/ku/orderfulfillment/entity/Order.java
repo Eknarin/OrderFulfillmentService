@@ -38,7 +38,9 @@ public class Order implements Serializable {
 	private String fulfillDate;
 	private String status;
 	private String orderURI;
-	private String itemIDList;
+	//private String itemIDList;
+	@XmlElement
+	private Items itemIDList;
 	
 	/**constructor*/
 	public Order() { }
@@ -46,7 +48,8 @@ public class Order implements Serializable {
 	/**constructor*/
 	public Order(Long exID, List<Long> list, String uri) {
 		externalID = exID;
-		itemIDList = listToString(list);
+		//itemIDList = listToString(list);
+		itemIDList = new Items(list); 
 		orderDate = (new Date()).toString();
 		fulfillDate = "-";
 		status = "Waiting";
@@ -74,11 +77,20 @@ public class Order implements Serializable {
 		this.externalID = externalID;
 	}
 
-	public String getItemIDList() {
+//	public String getItemIDList() {
+//		return itemIDList;
+//	}
+//
+//	public void setItemIDList(String itemIDList) {
+//		this.itemIDList = itemIDList;
+//	}
+	
+
+	public Items getItemIDList() {
 		return itemIDList;
 	}
 
-	public void setItemIDList(String itemIDList) {
+	public void setItemIDList(Items itemIDList) {
 		this.itemIDList = itemIDList;
 	}
 
@@ -161,15 +173,15 @@ public class Order implements Serializable {
 		this.setStatus(status);
 	}
 	
-	public String listToString(List<Long> list){
-		StringBuilder sb = new StringBuilder();
-		for(int i = 0 ; i < list.size() ; i++){
-			System.out.println(list.get(i));
-			sb.append(list.get(i).longValue());
-			if(i != list.size() - 1){
-				sb.append(",");
-			}
-		}
-		return sb.toString();
-	}
+//	public String listToString(List<Long> list){
+//		StringBuilder sb = new StringBuilder();
+//		for(int i = 0 ; i < list.size() ; i++){
+//			System.out.println(list.get(i));
+//			sb.append(list.get(i).longValue());
+//			if(i != list.size() - 1){
+//				sb.append(",");
+//			}
+//		}
+//		return sb.toString();
+//	}
 }

@@ -1,6 +1,5 @@
 package org.ku.orderfulfillment.resource;
 
-import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
@@ -121,7 +120,7 @@ public class OrderResource {
 			o = stringXMLtoOrder(order);
 		}
 		
-		if (dao.find(o.getId()) == null && checkItemList(o)) {
+		if (dao.find(o.getId()) == null ){//&& checkItemList(o)) {
 			
 			o.setOrderDate((new Date()).toString());
 			o.setStatus("Waiting"); //TODO enum/static  
@@ -273,28 +272,28 @@ public class OrderResource {
 		 return Response.status(Status.NO_CONTENT).build();
 	 }
 	 
-	 /**
-	  * Verify the validity of the order item.
-	  * @param o order
-	  * @return true if the order is valid; otherwise false.
-	  */
-	 private boolean checkItemList(Order o){
-		 String items = o.getItemIDList();
-		 if(items == null || items.length() == 0){
-			 return false;
-		 }
-		 
-		 char[] itemsArray = items.toCharArray();
-		 for(char c : itemsArray){
-			 if(( c >= '0' && c <= '9' ) || c == ','){
-				 continue;
-			 }
-			 else{
-				 return false;
-			 }
-		 }
-		 return true;
-	 }
+//	 /**
+//	  * Verify the validity of the order item.
+//	  * @param o order
+//	  * @return true if the order is valid; otherwise false.
+//	  */
+//	 private boolean checkItemList(Order o){
+//		 String items = o.getItemIDList();
+//		 if(items == null || items.length() == 0){
+//			 return false;
+//		 }
+//		 
+//		 char[] itemsArray = items.toCharArray();
+//		 for(char c : itemsArray){
+//			 if(( c >= '0' && c <= '9' ) || c == ','){
+//				 continue;
+//			 }
+//			 else{
+//				 return false;
+//			 }
+//		 }
+//		 return true;
+//	 }
 	 
 	 private String toJson(Orders o){
 		 JAXBContext context;
