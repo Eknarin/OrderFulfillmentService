@@ -1,5 +1,7 @@
 package org.ku.orderfulfillment.resource;
 
+import java.io.File;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,6 +26,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
 import org.json.JSONObject;
 import org.json.XML;
@@ -75,6 +78,7 @@ public class OrderResource {
 	 * Get one order by id.
 	 * 
 	 * @param id id of the order
+	 * @param accept type of content
 	 * @return order with specific id
 	 */
 	@GET
@@ -99,13 +103,24 @@ public class OrderResource {
 	 * assign a unique ID and return it as the location header.
 	 * 
 	 * @param order order
+	 * @param type content-type
 	 * @return URI location
 	 */
 	@POST
-	@Consumes(MediaType.APPLICATION_XML)
-	public Response postOrder(JAXBElement<Order> order) {
-		System.out.println("POST");
-		Order o = (Order) order.getValue();
+	@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	public Response postOrder(String order, @HeaderParam("Content-Type") String type){	
+		
+		System.out.print("POST ");
+		Order o;
+		if(type.equals(MediaType.APPLICATION_JSON)){
+			System.out.println("JSON");
+			o = stringJSONtoOrder(order); 
+		}
+		else{
+			System.out.println("XML");
+			o = stringXMLtoOrder(order);
+		}
+		
 		if (dao.find(o.getId()) == null && checkItemList(o)) {
 			
 			o.setOrderDate((new Date()).toString());
@@ -306,5 +321,25 @@ public class OrderResource {
 		 }
 		 
 		 return "";
+	 }
+	 
+	 private Order stringXMLtoOrder(String s){
+		 JAXBContext context;
+		 try {
+			 StringReader sr = new StringReader(s);
+			 context = JAXBContext.newInstance(Order.class);
+			 Unmarshaller unmarshaller = context.createUnmarshaller();
+			 Order order = (Order) unmarshaller.unmarshal(sr);
+			 return order;
+		 } catch (JAXBException e) {
+			 System.out.println("Cannot convert String XML to Order.");
+		 }	 
+		 return null;
+	 }
+	 
+	 private Order stringJSONtoOrder(String s){
+		 JSONObject json = new JSONObject(s);
+		 String xml = XML.toString(json);
+		 return stringXMLtoOrder(xml);
 	 }
 }
