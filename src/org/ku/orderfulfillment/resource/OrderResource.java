@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -70,6 +71,7 @@ public class OrderResource {
 	 * @return all order(s) in the order list.
 	 */
 	@GET
+	//@RolesAllowed("fulfiller")
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response getOrders(@HeaderParam("Accept") String accept) {
 		logger.debug("accept = " + accept);
@@ -91,6 +93,7 @@ public class OrderResource {
 	 */
 	@GET
 	@Path("{id}")
+	//@RolesAllowed({"fulfiller","e-commerce"})
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response getOrderById(@PathParam("id") long id, @HeaderParam("Accept") String accept) {
 		Order order = dao.find(id);
@@ -113,6 +116,7 @@ public class OrderResource {
 	 * @return URI location
 	 */
 	@POST
+	//@RolesAllowed("e-commerce")
 	@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response postOrder(String order, @HeaderParam("Content-Type") String type){//),@HeaderParam("Authorization") String auth){		
 		//if() auth
@@ -159,6 +163,7 @@ public class OrderResource {
 	  * @return URI location or no content if the updating order is null.
 	  */
 	 @PUT
+	 //@RolesAllowed("e-commerce")
 	 @Path("{id}")
 	 @Consumes(MediaType.APPLICATION_XML)
 	 public Response updateOrder(@PathParam("id") long id, JAXBElement<Order> order){
@@ -190,6 +195,7 @@ public class OrderResource {
 	  * @return URI location or no content if the updating order is null.
 	  */
 	 @PUT
+	 //@RolesAllowed("e-commerce")
 	 @Path("{id}/cancel")
 	 public Response cancelOrder(@PathParam("id") long id){
 		 logger.debug("id = " + id);
@@ -214,6 +220,7 @@ public class OrderResource {
 	  * @return URI location or no content if the updating order is null.
 	  */
 	 @PUT
+	 //@RolesAllowed("fulfiller")
 	 @Path("{id}/grab")
 	 public Response grabOrder(@PathParam("id") long id){
 		 logger.debug("id = " + id);
@@ -238,6 +245,7 @@ public class OrderResource {
 	  * @return URI location or no content if the updating order is null.
 	  */
 	 @PUT
+	 //@RolesAllowed("fulfiller")
 	 @Path("{id}/fulfill") 
 	 public Response fulfillOrder(@PathParam("id") long id){
 		 logger.debug("id = " + id);
@@ -265,6 +273,7 @@ public class OrderResource {
 	  * @return message for deleted id.
 	  */
 	 @DELETE
+	 //@RolesAllowed("fulfiller")
 	 @Path("{id}")
 	 public Response deleteOrder(@PathParam("id") long id){
 		 logger.debug("id = " + id);
