@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 @Path("/orders")
 public class OrderResource {
-	private final Logger logger;
+	//private final Logger logger;
 
 	@Context
 	UriInfo uriInfo;
@@ -55,7 +55,7 @@ public class OrderResource {
 
 	public OrderResource() {
 		dao = DaoFactory.getInstance().getOrderDao();
-		logger = LoggerFactory.getLogger(this.getClass().getSimpleName());
+		//logger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 	}
 
 	/**
@@ -66,17 +66,17 @@ public class OrderResource {
 	@GET
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response getOrders(@HeaderParam("Accept") String accept) {
-//		System.out.print("GETALL ");
-		logger.debug("accept="+accept);
+		System.out.print("GETALL ");
+		//logger.debug("accept="+accept);
 		
 		Orders orders = new Orders(dao.findAll());
 		
 		if(accept.equals(MediaType.APPLICATION_JSON)){
 			System.out.println("JSON");
-			return Response.ok(toJson(orders)).header("Access-Control-Allow-Origin", "*").build();
+			return Response.ok(toJson(orders)).build();
 		}
 		System.out.println("XML");
-		return Response.ok(orders).header("Access-Control-Allow-Origin", "*").build();
+		return Response.ok(orders).build();
 	}
 
 	/**
@@ -91,17 +91,17 @@ public class OrderResource {
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response getOrderById(@PathParam("id") long id, @HeaderParam("Accept") String accept) {
 		Order order = dao.find(id);
-//		System.out.print("GET BY ID ");
-		logger.debug("id="+id);
+		System.out.print("GET BY ID ");
+		//logger.debug("id="+id);
 		if (order == null)
-			return Response.status(Status.NOT_FOUND).header("Access-Control-Allow-Origin", "*").build();
+			return Response.status(Status.NOT_FOUND).build();
 		
 		if(accept.equals(MediaType.APPLICATION_JSON)){
 			System.out.println("JSON");
-			return Response.ok(toJson(order)).header("Access-Control-Allow-Origin", "*").build();
+			return Response.ok(toJson(order)).build();
 		}
 		System.out.println("XML");
-		return Response.ok(order).header("Access-Control-Allow-Origin", "*").build();
+		return Response.ok(order).build();
 	}
 
 	/**
@@ -114,7 +114,8 @@ public class OrderResource {
 	 */
 	@POST
 	@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public Response postOrder(String order, @HeaderParam("Content-Type") String type){	
+	public Response postOrder(String order, @HeaderParam("Content-Type") String type){//),@HeaderParam("Authorization") String auth){		
+		//if() auth
 		
 		System.out.print("POST ");
 		Order o;
@@ -130,23 +131,27 @@ public class OrderResource {
 		if (dao.find(o.getId()) == null ){//&& checkItemList(o)) {
 			
 			o.setOrderDate((new Date()).toString());
-			o.setStatus("Waiting"); //TODO enum/static  
-			o.setFulfillDate("-");
+			o.setStatus(Order.WAITING); 
+			o.setShipDate("-");
+			o.setPaymentID(-1);
+			o.setShipDate("-");
+			o.setShipmentID(-1);
+			o.setShipmentURI("-");
 
 			boolean success = dao.save(o);
 			if (success) {
 				try {
-					return Response.created(new URI(uriInfo.getAbsolutePath()+""+o.getId())).header("Access-Control-Allow-Origin", "*").build();
+					return Response.created(new URI(uriInfo.getAbsolutePath()+""+o.getId())).build();
 				} catch (URISyntaxException e) {
 					System.out.println("Error-POST");
 				}
 			}
-			return Response.status(Status.BAD_REQUEST).header("Access-Control-Allow-Origin", "*").build();	
+			return Response.status(Status.BAD_REQUEST).build();	
 		}
 		else {
-			Response.status(Status.CONFLICT).header("Access-Control-Allow-Origin", "*").build();
+			Response.status(Status.CONFLICT).build();
 		}
-		return Response.status(Status.CONFLICT).header("Access-Control-Allow-Origin", "*").build();
+		return Response.status(Status.CONFLICT).build();
 
 	}
 	
@@ -174,12 +179,12 @@ public class OrderResource {
 					 success = dao.update(o);
 				 }
 				 if(success){
-					 return Response.ok(uriInfo.getAbsolutePath()+"").header("Access-Control-Allow-Origin", "*").build();
+					 return Response.ok(uriInfo.getAbsolutePath()+"").build();
 				 }
 			 }
-			 return Response.status(Status.BAD_REQUEST).header("Access-Control-Allow-Origin", "*").build();
+			 return Response.status(Status.BAD_REQUEST).build();
 		 } 
-		 return Response.status(Status.NOT_FOUND).header("Access-Control-Allow-Origin", "*").build();
+		 return Response.status(Status.NOT_FOUND).build();
 	 }
 	 
 	 /**
@@ -199,11 +204,11 @@ public class OrderResource {
 			 if(o.getStatus().equals("Waiting")){
 				 o.cancelOrder();
 				 dao.update(o);
-				 return Response.ok(uriInfo.getAbsolutePath()+"").header("Access-Control-Allow-Origin", "*").build();
+				 return Response.ok(uriInfo.getAbsolutePath()+"").build();
 			 }
-			 return Response.status(Status.BAD_REQUEST).header("Access-Control-Allow-Origin", "*").build();
+			 return Response.status(Status.BAD_REQUEST).build();
 		 } 
-		 return Response.status(Status.NOT_FOUND).header("Access-Control-Allow-Origin", "*").build();
+		 return Response.status(Status.NOT_FOUND).build();
 	 }
 	 
 	 /**
@@ -223,11 +228,11 @@ public class OrderResource {
 			 if(o.getStatus().equals("Waiting")){
 				 o.updateStatus("In Process");
 				 dao.update(o);
-				 return Response.ok(uriInfo.getAbsolutePath()+"").header("Access-Control-Allow-Origin", "*").build();
+				 return Response.ok(uriInfo.getAbsolutePath()+"").build();
 			 }
-			 return Response.status(Status.BAD_REQUEST).header("Access-Control-Allow-Origin", "*").build();
+			 return Response.status(Status.BAD_REQUEST).build();
 		 } 
-		 return Response.status(Status.NOT_FOUND).header("Access-Control-Allow-Origin", "*").build();
+		 return Response.status(Status.NOT_FOUND).build();
 	 }
 	 
 	 /**
@@ -247,14 +252,14 @@ public class OrderResource {
 		 if(o != null){
 			 if(o.getStatus().equals("In Process")){
 				 o.updateStatus("Fullfilled");
-				 o.setFulfillDate((new Date()).toString());	 
+				 o.setShipDate((new Date()).toString());
 				 dao.update(o);
 				 
-				 return Response.ok(uriInfo.getAbsolutePath()+"").header("Access-Control-Allow-Origin", "*").build();
+				 return Response.ok(uriInfo.getAbsolutePath()+"").build();
 			 }
-			 return Response.status(Status.BAD_REQUEST).header("Access-Control-Allow-Origin", "*").build();
+			 return Response.status(Status.BAD_REQUEST).build();
 		 } 
-		 return Response.status(Status.NOT_FOUND).header("Access-Control-Allow-Origin", "*").build();
+		 return Response.status(Status.NOT_FOUND).build();
 	 }
 	 
 	
@@ -275,12 +280,12 @@ public class OrderResource {
 			 if(o.getStatus().equals("Canceled")){
 				 success = dao.delete(id);
 				 if(success){
-					 return Response.ok().header("Access-Control-Allow-Origin", "*").build();
+					 return Response.ok().build();
 				 }
 			 }
-			 return Response.status(Status.BAD_REQUEST).header("Access-Control-Allow-Origin", "*").build();
+			 return Response.status(Status.BAD_REQUEST).build();
 		 }
-		 return Response.status(Status.NO_CONTENT).header("Access-Control-Allow-Origin", "*").build();
+		 return Response.status(Status.NO_CONTENT).build();
 	 }
 	 
 //	 /**

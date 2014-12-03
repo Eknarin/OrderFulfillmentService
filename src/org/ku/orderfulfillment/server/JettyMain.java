@@ -1,4 +1,8 @@
-package org.ku.orderfulfillment.jetty;
+package org.ku.orderfulfillment.server;
+
+import java.util.EnumSet;
+
+import javax.servlet.DispatcherType;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -51,6 +55,7 @@ public class JettyMain {
 		ServletHolder holder = new ServletHolder( org.glassfish.jersey.servlet.ServletContainer.class );
 		
 		holder.setInitParameter(ServerProperties.PROVIDER_PACKAGES, "org.ku.orderfulfillment.resource");
+		context.addFilter(ResponseFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
 		context.addServlet( holder, "/*" );
 
 		server.setHandler( context );

@@ -28,32 +28,43 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Order implements Serializable {
 	private static final long serialVersionUID = 1L;
+	
+	public static final String WAITING = "Waiting";
+	public static final String IN_PROGRESS = "In Progress";
+	public static final String FULLFILLED = "Fulfilled";
+	public static final String SHIPPED = "Shipped";
+	public static final String CANCELED = "Canceled";
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@XmlAttribute
 	private long id;
-	private long externalID; 
-	private String orderDate;
-	private String fulfillDate;
-	private String status;
+	private long eCommerceOrderID;
+	private long shipmentID;
+	private long paymentID;
 	private String orderURI;
-	//private String itemIDList;
+	private String shipmentURI;
+	private String orderDate;
+	private String shipDate;
+	private String status;
 	@XmlElement
 	private Items itemIDList;
+
 	
 	/**constructor*/
 	public Order() { }
 	
 	/**constructor*/
 	public Order(Long exID, List<Long> list, String uri) {
-		externalID = exID;
-		//itemIDList = listToString(list);
-		itemIDList = new Items(list); 
-		orderDate = (new Date()).toString();
-		fulfillDate = "-";
-		status = "Waiting";
+		eCommerceOrderID = exID;
+		shipmentID = -1;
+		paymentID = -1;
 		orderURI = uri;
+		shipmentURI = "-";
+		orderDate = (new Date()).toString();
+		shipDate = "-";
+		status = Order.WAITING;
+		itemIDList = new Items(list);
 	}
 
 	/**constructor*/
@@ -61,71 +72,6 @@ public class Order implements Serializable {
 		this.id = id;
 	}
 
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	public long getExternalID() {
-		return externalID;
-	}
-
-	public void setExternalID(long externalID) {
-		this.externalID = externalID;
-	}
-
-//	public String getItemIDList() {
-//		return itemIDList;
-//	}
-//
-//	public void setItemIDList(String itemIDList) {
-//		this.itemIDList = itemIDList;
-//	}
-	
-
-	public Items getItemIDList() {
-		return itemIDList;
-	}
-
-	public void setItemIDList(Items itemIDList) {
-		this.itemIDList = itemIDList;
-	}
-
-	public String getOrderDate() {
-		return orderDate;
-	}
-
-	public void setOrderDate(String orderDate) {
-		this.orderDate = orderDate;
-	}
-
-	public String getFulfillDate() {
-		return fulfillDate;
-	}
-
-	public void setFulfillDate(String fulfillDate) {
-		this.fulfillDate = fulfillDate;
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
-	public String getOrderURI() {
-		return orderURI;
-	}
-
-	public void setOrderURI(String orderURI) {
-		this.orderURI = orderURI;
-	}
-	
 	@Override
 	public String toString() {
 		return String.format("[%ld] %s (%s)", id, orderDate, status);
@@ -152,7 +98,7 @@ public class Order implements Serializable {
 		if (update.getId() != 0 && update.getId() != this.getId() )
 			throw new IllegalArgumentException("Update order must have same id as order to update");
 
-		if(update.getExternalID() >= 0) this.setExternalID(update.getExternalID());
+		if(update.geteCommerceOrderID() > 0) this.seteCommerceOrderID(update.geteCommerceOrderID());
 		if(update.getItemIDList() != null) this.setItemIDList(update.getItemIDList());
 		if(update.getOrderURI() != null) this.setOrderURI(update.getOrderURI()); 
 	}
@@ -161,27 +107,99 @@ public class Order implements Serializable {
 	 * Cancel the order.
 	 */
 	public void cancelOrder(){
-		this.setStatus("Canceled");
+		this.setStatus(Order.CANCELED);
 	}
 	
 
 	/**
 	 * Update the status of the order.
-	 * @param status status to be updated. (Waiting, In Process, Fulfilled, Canceled)
+	 * @param status status to be updated. (Waiting, In Process, Fulfilled, Canceled, Shipped)
 	 */
 	public void updateStatus(String status){
 		this.setStatus(status);
 	}
+
+	/**Getters and Setters*/
 	
-//	public String listToString(List<Long> list){
-//		StringBuilder sb = new StringBuilder();
-//		for(int i = 0 ; i < list.size() ; i++){
-//			System.out.println(list.get(i));
-//			sb.append(list.get(i).longValue());
-//			if(i != list.size() - 1){
-//				sb.append(",");
-//			}
-//		}
-//		return sb.toString();
-//	}
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public long geteCommerceOrderID() {
+		return eCommerceOrderID;
+	}
+
+	public void seteCommerceOrderID(long eCommerceOrderID) {
+		this.eCommerceOrderID = eCommerceOrderID;
+	}
+
+	public long getShipmentID() {
+		return shipmentID;
+	}
+
+	public void setShipmentID(long shipmentID) {
+		this.shipmentID = shipmentID;
+	}
+
+	public long getPaymentID() {
+		return paymentID;
+	}
+
+	public void setPaymentID(long paymentID) {
+		this.paymentID = paymentID;
+	}
+
+	public String getOrderURI() {
+		return orderURI;
+	}
+
+	public void setOrderURI(String orderURI) {
+		this.orderURI = orderURI;
+	}
+
+	public String getShipmentURI() {
+		return shipmentURI;
+	}
+
+	public void setShipmentURI(String shipmentURI) {
+		this.shipmentURI = shipmentURI;
+	}
+
+	public String getOrderDate() {
+		return orderDate;
+	}
+
+	public void setOrderDate(String orderDate) {
+		this.orderDate = orderDate;
+	}
+
+	public String getShipDate() {
+		return shipDate;
+	}
+
+	public void setShipDate(String shipDate) {
+		this.shipDate = shipDate;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public Items getItemIDList() {
+		return itemIDList;
+	}
+
+	public void setItemIDList(Items itemIDList) {
+		this.itemIDList = itemIDList;
+	}
+	
+	
 }
