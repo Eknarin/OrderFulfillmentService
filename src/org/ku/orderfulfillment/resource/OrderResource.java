@@ -45,17 +45,23 @@ import org.slf4j.LoggerFactory;
 @Singleton
 @Path("/orders")
 public class OrderResource {
-	//private final Logger logger;
+	private final Logger logger;
 
 	@Context
 	UriInfo uriInfo;
 
 	private OrderDao dao;
 	public static int PRETTY_PRINT_INDENT_FACTOR = 4;
+	
+	private final Response OK = Response.status(Status.OK).build();
+	private final Response CONFLICT = Response.status(Status.CONFLICT).build();
+	private final Response BAD_REQUEST = Response.status(Status.BAD_REQUEST).build();
+	private final Response NO_CONTENT = Response.status(Status.NO_CONTENT).build();
+	private final Response NOT_FOUND = Response.status(Status.NOT_FOUND).build();
 
 	public OrderResource() {
 		dao = DaoFactory.getInstance().getOrderDao();
-		//logger = LoggerFactory.getLogger(this.getClass().getSimpleName());
+		logger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 	}
 
 	/**
@@ -66,16 +72,13 @@ public class OrderResource {
 	@GET
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response getOrders(@HeaderParam("Accept") String accept) {
-		System.out.print("GETALL ");
-		//logger.debug("accept="+accept);
+		logger.debug("accept = " + accept);
 		
 		Orders orders = new Orders(dao.findAll());
 		
 		if(accept.equals(MediaType.APPLICATION_JSON)){
-			System.out.println("JSON");
 			return Response.ok(toJson(orders)).build();
 		}
-		System.out.println("XML");
 		return Response.ok(orders).build();
 	}
 
@@ -91,16 +94,13 @@ public class OrderResource {
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response getOrderById(@PathParam("id") long id, @HeaderParam("Accept") String accept) {
 		Order order = dao.find(id);
-		System.out.print("GET BY ID ");
-		//logger.debug("id="+id);
-		if (order == null)
-			return Response.status(Status.NOT_FOUND).build();
+		logger.debug("id = " + id + "accept + " + accept);
 		
+		if (order == null)
+			return NOT_FOUND;		
 		if(accept.equals(MediaType.APPLICATION_JSON)){
-			System.out.println("JSON");
 			return Response.ok(toJson(order)).build();
 		}
-		System.out.println("XML");
 		return Response.ok(order).build();
 	}
 
@@ -117,14 +117,12 @@ public class OrderResource {
 	public Response postOrder(String order, @HeaderParam("Content-Type") String type){//),@HeaderParam("Authorization") String auth){		
 		//if() auth
 		
-		System.out.print("POST ");
+		logger.debug("type = " + type);
 		Order o;
 		if(type.equals(MediaType.APPLICATION_JSON)){
-			System.out.println("JSON");
 			o = stringJSONtoOrder(order); 
 		}
 		else{
-			System.out.println("XML");
 			o = stringXMLtoOrder(order);
 		}
 		
@@ -146,13 +144,11 @@ public class OrderResource {
 					System.out.println("Error-POST");
 				}
 			}
-			return Response.status(Status.BAD_REQUEST).build();	
+			return BAD_REQUEST;
 		}
 		else {
-			Response.status(Status.CONFLICT).build();
+			return CONFLICT;
 		}
-		return Response.status(Status.CONFLICT).build();
-
 	}
 	
 	 /**
@@ -166,14 +162,14 @@ public class OrderResource {
 	 @Path("{id}")
 	 @Consumes(MediaType.APPLICATION_XML)
 	 public Response updateOrder(@PathParam("id") long id, JAXBElement<Order> order){
-		 System.out.println("PUT-UPDATE");
+		 logger.debug("id = " + id);
 		 
 		 Order o = dao.find(id);
 		 Order update = (Order)order.getValue();
 		 boolean success = false;	
 		
 		 if(o != null){
-			 if(o.getStatus().equals("Waiting")){
+			 if(o.getStatus().equals(Order.WAITING)){
 				 o.applyUpdate(update);
 				 if(id == update.getId()){
 					 success = dao.update(o);
@@ -182,9 +178,9 @@ public class OrderResource {
 					 return Response.ok(uriInfo.getAbsolutePath()+"").build();
 				 }
 			 }
-			 return Response.status(Status.BAD_REQUEST).build();
+			 return BAD_REQUEST;
 		 } 
-		 return Response.status(Status.NOT_FOUND).build();
+		 return NOT_FOUND;
 	 }
 	 
 	 /**
@@ -196,19 +192,19 @@ public class OrderResource {
 	 @PUT
 	 @Path("{id}/cancel")
 	 public Response cancelOrder(@PathParam("id") long id){
-		 System.out.println("PUT-CANCEL");
+		 logger.debug("id = " + id);
 		 
 		 Order o = dao.find(id);	
 		
 		 if(o != null){
-			 if(o.getStatus().equals("Waiting")){
+			 if(o.getStatus().equals(Order.WAITING)){
 				 o.cancelOrder();
 				 dao.update(o);
 				 return Response.ok(uriInfo.getAbsolutePath()+"").build();
 			 }
-			 return Response.status(Status.BAD_REQUEST).build();
+			 return BAD_REQUEST;
 		 } 
-		 return Response.status(Status.NOT_FOUND).build();
+		 return NOT_FOUND;
 	 }
 	 
 	 /**
@@ -218,21 +214,21 @@ public class OrderResource {
 	  * @return URI location or no content if the updating order is null.
 	  */
 	 @PUT
-	 @Path("fulfiller/grab/{id}")
+	 @Path("{id}/grab")
 	 public Response grabOrder(@PathParam("id") long id){
-		 System.out.println("PUT-UPDATE-GRAB");
+		 logger.debug("id = " + id);
 		 
 		 Order o = dao.find(id);
 		
 		 if(o != null){
-			 if(o.getStatus().equals("Waiting")){
-				 o.updateStatus("In Process");
+			 if(o.getStatus().equals(Order.WAITING)){
+				 o.updateStatus(Order.IN_PROGRESS);
 				 dao.update(o);
 				 return Response.ok(uriInfo.getAbsolutePath()+"").build();
 			 }
-			 return Response.status(Status.BAD_REQUEST).build();
+			 return BAD_REQUEST;
 		 } 
-		 return Response.status(Status.NOT_FOUND).build();
+		 return NOT_FOUND;
 	 }
 	 
 	 /**
@@ -242,24 +238,22 @@ public class OrderResource {
 	  * @return URI location or no content if the updating order is null.
 	  */
 	 @PUT
-	 // resource hierarchy: /fulfill/{id}/grab
-	 //                     /fulfill/{id}/fullfill
-	 @Path("fulfiller/fulfill/{id}")
-	 
+	 @Path("{id}/fulfill") 
 	 public Response fulfillOrder(@PathParam("id") long id){
-		 System.out.println("PUT-UPDATE-FULFILL");		 
+		 logger.debug("id = " + id);
+		 
 		 Order o = dao.find(id);		
 		 if(o != null){
-			 if(o.getStatus().equals("In Process")){
-				 o.updateStatus("Fullfilled");
+			 if(o.getStatus().equals(Order.IN_PROGRESS)){
+				 o.updateStatus(Order.FULLFILLED);
 				 o.setShipDate((new Date()).toString());
 				 dao.update(o);
 				 
 				 return Response.ok(uriInfo.getAbsolutePath()+"").build();
 			 }
-			 return Response.status(Status.BAD_REQUEST).build();
+			 return BAD_REQUEST;
 		 } 
-		 return Response.status(Status.NOT_FOUND).build();
+		 return NOT_FOUND;
 	 }
 	 
 	
@@ -271,51 +265,39 @@ public class OrderResource {
 	  * @return message for deleted id.
 	  */
 	 @DELETE
-	 @Path("fulfiller/delete/{id}")
+	 @Path("{id}")
 	 public Response deleteOrder(@PathParam("id") long id){
+		 logger.debug("id = " + id);
 		 Order o = dao.find(id);
 		 boolean success = false;
 		
 		 if(o != null){
-			 if(o.getStatus().equals("Canceled")){
+			 if(o.getStatus().equals(Order.CANCELED)){
 				 success = dao.delete(id);
 				 if(success){
-					 return Response.ok().build();
+					 return OK;
 				 }
 			 }
-			 return Response.status(Status.BAD_REQUEST).build();
+			 return BAD_REQUEST;
 		 }
-		 return Response.status(Status.NO_CONTENT).build();
+		 return NO_CONTENT;
 	 }
 	 
-//	 /**
-//	  * Verify the validity of the order item.
-//	  * @param o order
-//	  * @return true if the order is valid; otherwise false.
-//	  */
-//	 private boolean checkItemList(Order o){
-//		 String items = o.getItemIDList();
-//		 if(items == null || items.length() == 0){
-//			 return false;
-//		 }
-//		 
-//		 char[] itemsArray = items.toCharArray();
-//		 for(char c : itemsArray){
-//			 if(( c >= '0' && c <= '9' ) || c == ','){
-//				 continue;
-//			 }
-//			 else{
-//				 return false;
-//			 }
-//		 }
-//		 return true;
-//	 }
-	 
-	 private String toJson(Orders o){
+	 /**
+	  * Convert orders or order xml into json string
+	  * @param o orders or order
+	  * @return converted json string
+	  */
+	 private String toJson(Object o){
 		 JAXBContext context;
 		 StringWriter sw = new StringWriter();
 		 try{
-			 context = JAXBContext.newInstance(Orders.class);
+			 if(o instanceof Orders){
+				 context = JAXBContext.newInstance(Orders.class);
+			 }
+			 else{
+				 context = JAXBContext.newInstance(Order.class);
+			 }
 			 Marshaller marsahller = (Marshaller) context.createMarshaller();
 			 marsahller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
 			 marsahller.marshal(o, sw);
@@ -330,25 +312,11 @@ public class OrderResource {
 		 return "";
 	 }
 	 
-	 private String toJson(Order o){
-		 JAXBContext context;
-		 StringWriter sw = new StringWriter();
-		 try{
-			 context = JAXBContext.newInstance(Orders.class);
-			 Marshaller marsahller = (Marshaller) context.createMarshaller();
-			 marsahller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
-			 marsahller.marshal(o, sw);
-			  
-			 JSONObject xmlJSONObj = XML.toJSONObject(sw.toString());
-			 
-			 return xmlJSONObj.toString(PRETTY_PRINT_INDENT_FACTOR);
-		 } catch (JAXBException e) {
-			 System.out.println("Cannot convert XML to JSON.");
-		 }
-		 
-		 return "";
-	 }
-	 
+	 /**
+	  * Convert xml string to order object.
+	  * @param s xml string
+	  * @return converted order
+	  */
 	 private Order stringXMLtoOrder(String s){
 		 JAXBContext context;
 		 try {
@@ -363,6 +331,11 @@ public class OrderResource {
 		 return null;
 	 }
 	 
+	 /**
+	  * Convert json string to order object.
+	  * @param s json string
+	  * @return converted order.
+	  */
 	 private Order stringJSONtoOrder(String s){
 		 JSONObject json = new JSONObject(s);
 		 String xml = XML.toString(json);
