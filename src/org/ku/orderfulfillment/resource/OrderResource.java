@@ -33,6 +33,8 @@ import org.ku.orderfulfillment.entity.Order;
 import org.ku.orderfulfillment.entity.Orders;
 import org.ku.orderfulfillment.service.DaoFactory;
 import org.ku.orderfulfillment.service.OrderDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * OrderResource provides RESTful web resources using JAX-RS annotations to
@@ -43,6 +45,7 @@ import org.ku.orderfulfillment.service.OrderDao;
 @Singleton
 @Path("/orders")
 public class OrderResource {
+	private final Logger logger;
 
 	@Context
 	UriInfo uriInfo;
@@ -52,6 +55,7 @@ public class OrderResource {
 
 	public OrderResource() {
 		dao = DaoFactory.getInstance().getOrderDao();
+		logger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 	}
 
 	/**
@@ -62,7 +66,9 @@ public class OrderResource {
 	@GET
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response getOrders(@HeaderParam("Accept") String accept) {
-		System.out.print("GETALL ");
+//		System.out.print("GETALL ");
+		logger.debug("accept="+accept);
+		
 		Orders orders = new Orders(dao.findAll());
 		
 		if(accept.equals(MediaType.APPLICATION_JSON)){
@@ -85,9 +91,10 @@ public class OrderResource {
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response getOrderById(@PathParam("id") long id, @HeaderParam("Accept") String accept) {
 		Order order = dao.find(id);
-		System.out.print("GET BY ID ");
+//		System.out.print("GET BY ID ");
+		logger.debug("id="+id);
 		if (order == null)
-			return Response.status(Status.NOT_FOUND).build();
+			return Response.status(Status.NOT_FOUND).header("Access-Control-Allow-Origin", "*").build();
 		
 		if(accept.equals(MediaType.APPLICATION_JSON)){
 			System.out.println("JSON");
@@ -129,17 +136,17 @@ public class OrderResource {
 			boolean success = dao.save(o);
 			if (success) {
 				try {
-					return Response.created(new URI(uriInfo.getAbsolutePath()+""+o.getId())).build();
+					return Response.created(new URI(uriInfo.getAbsolutePath()+""+o.getId())).header("Access-Control-Allow-Origin", "*").build();
 				} catch (URISyntaxException e) {
 					System.out.println("Error-POST");
 				}
 			}
-			return Response.status(Status.BAD_REQUEST).build();	
+			return Response.status(Status.BAD_REQUEST).header("Access-Control-Allow-Origin", "*").build();	
 		}
 		else {
-			Response.status(Status.CONFLICT).build();
+			Response.status(Status.CONFLICT).header("Access-Control-Allow-Origin", "*").build();
 		}
-		return Response.status(Status.CONFLICT).build();
+		return Response.status(Status.CONFLICT).header("Access-Control-Allow-Origin", "*").build();
 
 	}
 	
@@ -167,12 +174,12 @@ public class OrderResource {
 					 success = dao.update(o);
 				 }
 				 if(success){
-					 return Response.ok(uriInfo.getAbsolutePath()+"").build();
+					 return Response.ok(uriInfo.getAbsolutePath()+"").header("Access-Control-Allow-Origin", "*").build();
 				 }
 			 }
-			 return Response.status(Status.BAD_REQUEST).build();
+			 return Response.status(Status.BAD_REQUEST).header("Access-Control-Allow-Origin", "*").build();
 		 } 
-		 return Response.status(Status.NOT_FOUND).build();
+		 return Response.status(Status.NOT_FOUND).header("Access-Control-Allow-Origin", "*").build();
 	 }
 	 
 	 /**
@@ -192,11 +199,11 @@ public class OrderResource {
 			 if(o.getStatus().equals("Waiting")){
 				 o.cancelOrder();
 				 dao.update(o);
-				 return Response.ok(uriInfo.getAbsolutePath()+"").build();
+				 return Response.ok(uriInfo.getAbsolutePath()+"").header("Access-Control-Allow-Origin", "*").build();
 			 }
-			 return Response.status(Status.BAD_REQUEST).build();
+			 return Response.status(Status.BAD_REQUEST).header("Access-Control-Allow-Origin", "*").build();
 		 } 
-		 return Response.status(Status.NOT_FOUND).build();
+		 return Response.status(Status.NOT_FOUND).header("Access-Control-Allow-Origin", "*").build();
 	 }
 	 
 	 /**
@@ -216,11 +223,11 @@ public class OrderResource {
 			 if(o.getStatus().equals("Waiting")){
 				 o.updateStatus("In Process");
 				 dao.update(o);
-				 return Response.ok(uriInfo.getAbsolutePath()+"").build();
+				 return Response.ok(uriInfo.getAbsolutePath()+"").header("Access-Control-Allow-Origin", "*").build();
 			 }
-			 return Response.status(Status.BAD_REQUEST).build();
+			 return Response.status(Status.BAD_REQUEST).header("Access-Control-Allow-Origin", "*").build();
 		 } 
-		 return Response.status(Status.NOT_FOUND).build();
+		 return Response.status(Status.NOT_FOUND).header("Access-Control-Allow-Origin", "*").build();
 	 }
 	 
 	 /**
@@ -230,7 +237,10 @@ public class OrderResource {
 	  * @return URI location or no content if the updating order is null.
 	  */
 	 @PUT
+	 // resource hierarchy: /fulfill/{id}/grab
+	 //                     /fulfill/{id}/fullfill
 	 @Path("fulfiller/fulfill/{id}")
+	 
 	 public Response fulfillOrder(@PathParam("id") long id){
 		 System.out.println("PUT-UPDATE-FULFILL");		 
 		 Order o = dao.find(id);		
@@ -240,11 +250,11 @@ public class OrderResource {
 				 o.setFulfillDate((new Date()).toString());	 
 				 dao.update(o);
 				 
-				 return Response.ok(uriInfo.getAbsolutePath()+"").build();
+				 return Response.ok(uriInfo.getAbsolutePath()+"").header("Access-Control-Allow-Origin", "*").build();
 			 }
-			 return Response.status(Status.BAD_REQUEST).build();
+			 return Response.status(Status.BAD_REQUEST).header("Access-Control-Allow-Origin", "*").build();
 		 } 
-		 return Response.status(Status.NOT_FOUND).build();
+		 return Response.status(Status.NOT_FOUND).header("Access-Control-Allow-Origin", "*").build();
 	 }
 	 
 	
@@ -265,11 +275,12 @@ public class OrderResource {
 			 if(o.getStatus().equals("Canceled")){
 				 success = dao.delete(id);
 				 if(success){
-					 return Response.ok().build();
+					 return Response.ok().header("Access-Control-Allow-Origin", "*").build();
 				 }
 			 }
+			 return Response.status(Status.BAD_REQUEST).header("Access-Control-Allow-Origin", "*").build();
 		 }
-		 return Response.status(Status.NO_CONTENT).build();
+		 return Response.status(Status.NO_CONTENT).header("Access-Control-Allow-Origin", "*").build();
 	 }
 	 
 //	 /**
