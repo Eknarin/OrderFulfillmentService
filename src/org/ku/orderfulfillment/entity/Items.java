@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /***
- * Wrapper class for Item ID
+ * Wrapper class for Item
  * @author Sarathit
  *
  */
@@ -19,19 +19,24 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Items implements Serializable{
+
 	@XmlElement(name = "item")
-	private List<Long> itemsID;
+	private List<Item> items;
 	
 	public Items(){
 		this(new ArrayList());
 	}
 	
-	public Items(Long l){
-		itemsID = new ArrayList<>();
-		itemsID.add(l);
+	public Items(Item i){
+		items = new ArrayList<>();
+		items.add(i);
 	}
 	
-	public Items(List<Long> list){
-		itemsID = list;
+	public Items(List<Item> list){
+		items = list;
+	}
+	
+	public List<Item> getItemList(){
+		return items;
 	}
 }

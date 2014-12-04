@@ -10,8 +10,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 
-import jersey.repackaged.com.google.common.collect.Lists;
-
+import org.ku.orderfulfillment.entity.Item;
+import org.ku.orderfulfillment.entity.Items;
 import org.ku.orderfulfillment.entity.Order;
 import org.ku.orderfulfillment.service.OrderDao;
 
@@ -41,11 +41,12 @@ public class JpaOrderDao implements OrderDao {
 	private void createTestOrder( ) {
 		long id = 999; // usually we should let JPA set the id
 		if (find(id) == null) {
-			List<Long> list = new ArrayList<Long>();
-			list.add(1L);
-			list.add(2L);
-			list.add(3L);
-			Order test = new Order(1234L,list,"Test URI");
+			List<Item> list = new ArrayList<Item>();
+			list.add(new Item(1,"Pig", 80, "Piggy", 30, 2));
+			list.add(new Item(2,"Fish", 10, "Fishy", 5, 10));
+			list.add(new Item(3,"Dog", 20, "Doggy", 34.5, 3));
+			Items items = new Items(list);
+			Order test = new Order(1234L, items, "EMS", "BB", "BB-HOME", "Kyuuri", "Kyuuri-Home");
 			test.setId(id);
 			save(test);
 		}

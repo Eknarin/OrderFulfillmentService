@@ -42,29 +42,37 @@ public class Order implements Serializable {
 	private long eCommerceOrderID;
 	private long shipmentID;
 	private long paymentID;
-	private String orderURI;
 	private String shipmentURI;
 	private String orderDate;
 	private String shipDate;
 	private String status;
-	@XmlElement
-	private Items itemIDList;
+	private String type;
+	private String courier_name;
+	private String courier_address;
+	private String receive_name;
+	private String receive_address;
+	private Items items;
 
 	
 	/**constructor*/
 	public Order() { }
 	
 	/**constructor*/
-	public Order(Long exID, List<Long> list, String uri) {
+	public Order(Long exID, Items itemList,String t, String cn, String ca, String rn, String ra) {
 		eCommerceOrderID = exID;
 		shipmentID = -1;
 		paymentID = -1;
-		orderURI = uri;
 		shipmentURI = "-";
 		orderDate = (new Date()).toString();
 		shipDate = "-";
 		status = Order.WAITING;
-		itemIDList = new Items(list);
+		items = itemList;
+		type = t;
+		courier_name = cn;
+		courier_address = ca;
+		receive_name = rn;
+		receive_address = ra;
+		
 	}
 
 	/**constructor*/
@@ -98,9 +106,26 @@ public class Order implements Serializable {
 		if (update.getId() != 0 && update.getId() != this.getId() )
 			throw new IllegalArgumentException("Update order must have same id as order to update");
 
-		if(update.geteCommerceOrderID() > 0) this.seteCommerceOrderID(update.geteCommerceOrderID());
-		if(update.getItemIDList() != null) this.setItemIDList(update.getItemIDList());
-		if(update.getOrderURI() != null) this.setOrderURI(update.getOrderURI()); 
+		if(update.geteCommerceOrderID() > 0) 
+			this.seteCommerceOrderID(update.geteCommerceOrderID());
+		
+		if(update.getItems() != null) 
+			this.setItems(update.getItems());
+		
+		if(update.getCourier_address() != null) 
+			this.setCourier_address(update.getCourier_address());
+		
+		if(update.getCourier_name() != null) 
+			this.setCourier_name(update.getCourier_name()); 
+		
+		if(update.getType() != null) 
+			this.setType(update.getType());
+		
+		if(update.getReceive_address() != null) 
+			this.setReceive_address(update.getReceive_address());
+		
+		if(update.getReceive_name() != null) 
+			this.setReceive_name(update.getReceive_name()); 
 	}
 	
 	/**
@@ -153,14 +178,6 @@ public class Order implements Serializable {
 		this.paymentID = paymentID;
 	}
 
-	public String getOrderURI() {
-		return orderURI;
-	}
-
-	public void setOrderURI(String orderURI) {
-		this.orderURI = orderURI;
-	}
-
 	public String getShipmentURI() {
 		return shipmentURI;
 	}
@@ -193,13 +210,52 @@ public class Order implements Serializable {
 		this.status = status;
 	}
 
-	public Items getItemIDList() {
-		return itemIDList;
+	public Items getItems() {
+		return items;
 	}
 
-	public void setItemIDList(Items itemIDList) {
-		this.itemIDList = itemIDList;
+	public void setItems(Items itemList) {
+		this.items = itemList;
 	}
-	
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getCourier_name() {
+		return courier_name;
+	}
+
+	public void setCourier_name(String courier_name) {
+		this.courier_name = courier_name;
+	}
+
+	public String getCourier_address() {
+		return courier_address;
+	}
+
+	public void setCourier_address(String courier_address) {
+		this.courier_address = courier_address;
+	}
+
+	public String getReceive_name() {
+		return receive_name;
+	}
+
+	public void setReceive_name(String receive_name) {
+		this.receive_name = receive_name;
+	}
+
+	public String getReceive_address() {
+		return receive_address;
+	}
+
+	public void setReceive_address(String receive_address) {
+		this.receive_address = receive_address;
+	}
 	
 }

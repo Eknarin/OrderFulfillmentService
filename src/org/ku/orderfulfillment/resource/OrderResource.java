@@ -5,8 +5,9 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -28,12 +29,19 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.util.StringContentProvider;
+import org.eclipse.jetty.http.HttpMethod;
 import org.json.JSONObject;
 import org.json.XML;
 import org.ku.orderfulfillment.entity.Order;
 import org.ku.orderfulfillment.entity.Orders;
+import org.ku.orderfulfillment.entity.Shipment;
 import org.ku.orderfulfillment.service.DaoFactory;
 import org.ku.orderfulfillment.service.OrderDao;
+import org.ku.orderfulfillment.util.ShipmentConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,10 +67,25 @@ public class OrderResource {
 	private final Response BAD_REQUEST = Response.status(Status.BAD_REQUEST).build();
 	private final Response NO_CONTENT = Response.status(Status.NO_CONTENT).build();
 	private final Response NOT_FOUND = Response.status(Status.NOT_FOUND).build();
+	
+	private String shipmentService = "http://10.2.31.107:8080";
+	private String paymentService;
+	
+	private static HttpClient client;
+	
+	private ShipmentConverter shipConverter;
 
 	public OrderResource() {
 		dao = DaoFactory.getInstance().getOrderDao();
 		logger = LoggerFactory.getLogger(this.getClass().getSimpleName());
+		shipConverter = new ShipmentConverter();
+		client = new HttpClient();
+		try {
+			client.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		//TOTO call set service URI
 	}
 
 	/**
@@ -106,6 +129,53 @@ public class OrderResource {
 		}
 		return Response.ok(order).build();
 	}
+	
+	/**
+	 * (For e-commerce)
+	 * Ask for a shipment cost of an order.
+	 * @param order order
+	 * @param type type of shipment
+	 * @return shipment cost
+	 */
+	@POST
+	@Path("/shipcost")
+	//@RolesAllowed("e-commerce")
+	public Response checkOrderShipmentCost(String order, @HeaderParam("Content-Type") String type){
+		logger.debug("type = " + type);
+		System.out.println("asdasd");
+		Request request = client.newRequest(shipmentService + "/shipments/calculate");
+		Order o ;
+		if(type.equals(MediaType.APPLICATION_JSON)){
+			o = stringJSONtoOrder(order);
+		}
+		else{
+			o = stringXMLtoOrder(order);
+		}
+		Shipment shm = shipConverter.orderToShipment(o);
+		String shipmentXML = shipConverter.shipmentToStringXML(shm);
+		System.out.println(shipmentXML);
+		StringContentProvider content = new StringContentProvider(shipmentXML);
+		request.method(HttpMethod.POST);
+		request.content(content, MediaType.APPLICATION_XML);
+		request.accept(type);
+		ContentResponse res;
+		try {
+			res = request.send();
+		} catch (InterruptedException | TimeoutException | ExecutionException e) {
+			logger.debug(e.toString());
+			return BAD_REQUEST;
+		}
+		
+		if(res.getStatus() == Response.Status.OK.getStatusCode()){
+			Shipment shipment = shipConverter.stringXMLtoShipment(res.getContentAsString());
+			return Response.ok(shipment).build();
+		}
+		else{
+			return BAD_REQUEST;
+		}
+	}
+	
+	//payment
 
 	/**
 	 * Create a new order. If order id is omitted or 0, the server will
@@ -350,4 +420,20 @@ public class OrderResource {
 		 String xml = XML.toString(json);
 		 return stringXMLtoOrder(xml);
 	 }
+	 
+	 public String getShipmentService() {
+		 return shipmentService;
+	 }
+
+	 public void setShipmentService(String shipmentService) {
+		 this.shipmentService = shipmentService;
+	 }
+
+	 public String getPaymentService() {
+		 return paymentService;
+	 }
+
+	 public void setPaymentService(String paymentService) {
+		 this.paymentService = paymentService;
+	 }	 
 }

@@ -20,8 +20,8 @@ public class ResponseFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res,
 		FilterChain chain) throws IOException, ServletException {
-		System.out.println("LoginFilter : doFilter : Start");
-		System.out.println(req.toString());
+		//System.out.println("LoginFilter : doFilter : Start");
+		//System.out.println(req.toString());
 
 		HttpServletResponse response = (HttpServletResponse) res;
 		response.setHeader("Access-Control-Allow-Origin", "*");
