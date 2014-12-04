@@ -51,6 +51,9 @@ public class Order implements Serializable {
 	private String courier_address;
 	private String receive_name;
 	private String receive_address;
+	private long recipientID;
+	private long senderID;
+	private double amount;
 	private Items items;
 
 	
@@ -58,7 +61,7 @@ public class Order implements Serializable {
 	public Order() { }
 	
 	/**constructor*/
-	public Order(Long exID, Items itemList,String t, String cn, String ca, String rn, String ra) {
+	public Order(Long exID, Items itemList,String t, String cn, String ca, String rn, String ra,long recID, long senID, double amt) {
 		eCommerceOrderID = exID;
 		shipmentID = -1;
 		paymentID = -1;
@@ -72,7 +75,9 @@ public class Order implements Serializable {
 		courier_address = ca;
 		receive_name = rn;
 		receive_address = ra;
-		
+		recipientID = recID;
+		senderID = senID;
+		amount = amt;
 	}
 
 	/**constructor*/
@@ -106,7 +111,7 @@ public class Order implements Serializable {
 		if (update.getId() != 0 && update.getId() != this.getId() )
 			throw new IllegalArgumentException("Update order must have same id as order to update");
 
-		if(update.geteCommerceOrderID() > 0) 
+		if(update.geteCommerceOrderID() >= 0) 
 			this.seteCommerceOrderID(update.geteCommerceOrderID());
 		
 		if(update.getItems() != null) 
@@ -125,7 +130,16 @@ public class Order implements Serializable {
 			this.setReceive_address(update.getReceive_address());
 		
 		if(update.getReceive_name() != null) 
-			this.setReceive_name(update.getReceive_name()); 
+			this.setReceive_name(update.getReceive_name());
+		
+		if(update.getRecipientID() >= 0) 
+			this.setRecipientID(update.getRecipientID());
+		
+		if(update.getSenderID() >= 0) 
+			this.setSenderID(update.getSenderID());
+		
+		if(update.getAmount() > 0) 
+			this.setAmount(update.getAmount());
 	}
 	
 	/**
@@ -256,6 +270,30 @@ public class Order implements Serializable {
 
 	public void setReceive_address(String receive_address) {
 		this.receive_address = receive_address;
+	}
+
+	public long getRecipientID() {
+		return recipientID;
+	}
+
+	public void setRecipientID(long recipientID) {
+		this.recipientID = recipientID;
+	}
+
+	public long getSenderID() {
+		return senderID;
+	}
+
+	public void setSenderID(long senderID) {
+		this.senderID = senderID;
+	}
+
+	public double getAmount() {
+		return amount;
+	}
+
+	public void setAmount(double amount) {
+		this.amount = amount;
 	}
 	
 }
