@@ -163,21 +163,24 @@ public class OrderResource {
 		request.content(content, MediaType.APPLICATION_XML);
 		request.accept(MediaType.APPLICATION_XML);
 		ContentResponse res;
-		try {
-			res = request.send();
-		} catch (InterruptedException | TimeoutException | ExecutionException e) {
-			logger.debug(e.toString());
-			return BAD_REQUEST;
-		}
-		
-		if(res.getStatus() == Response.Status.OK.getStatusCode()){
-			Shipment shipment = shipConverter.stringXMLtoShipment(res.getContentAsString());
-			//TODO may handle JSON
-			return Response.ok(shipment).build();
-		}
-		else{
-			return BAD_REQUEST;
-		}
+		//TODO get this comment back
+//		try {
+//			res = request.send();
+//		} catch (InterruptedException | TimeoutException | ExecutionException e) {
+//			logger.debug(e.toString());
+//			return BAD_REQUEST;
+//		}
+//		
+//		if(res.getStatus() == Response.Status.OK.getStatusCode()){
+//			Shipment shipment = shipConverter.stringXMLtoShipment(res.getContentAsString());
+//			//TODO may handle JSON
+//			return Response.ok(shipment).build();
+//		}
+//		else{
+//			return BAD_REQUEST;
+//		}
+		shm.setTotal_cost((long)Math.random()*1000);
+		return Response.ok(shm).build();
 	}
 	
 	//TODO
