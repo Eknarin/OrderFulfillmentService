@@ -29,11 +29,11 @@ public class PaymentConverter {
 	public PaymentConverter() {
 	}
 
-	public Payment orderToPayment(Order o,Shipment s) {
+	public Payment orderToPayment(Order o) {
 		Payment pay = new Payment();
 		pay.setRecipientID(o.getRecipientID());
 		pay.setSenderID(o.getSenderID());
-		pay.setAmount(o.getAmount() + s.getTotal_cost());
+		pay.setAmount(o.getAmount());
 		return pay;
 	}
 

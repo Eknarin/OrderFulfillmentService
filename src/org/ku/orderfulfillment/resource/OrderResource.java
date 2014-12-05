@@ -36,6 +36,7 @@ import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
 import org.json.JSONObject;
 import org.json.XML;
+import org.ku.orderfulfillment.entity.Items;
 import org.ku.orderfulfillment.entity.Order;
 import org.ku.orderfulfillment.entity.Orders;
 import org.ku.orderfulfillment.entity.Payment;
@@ -89,7 +90,6 @@ public class OrderResource {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		//TOTO call set service URI
 	}
 
 	/**
@@ -127,7 +127,7 @@ public class OrderResource {
 		logger.debug("id = " + id + "accept + " + accept);
 		
 		if (order == null)
-			return NOT_FOUND;		
+			return NOT_FOUND;
 		if(accept.equals(MediaType.APPLICATION_JSON)){
 			return Response.ok(toJson(order)).build();
 		}
@@ -172,6 +172,7 @@ public class OrderResource {
 		
 		if(res.getStatus() == Response.Status.OK.getStatusCode()){
 			Shipment shipment = shipConverter.stringXMLtoShipment(res.getContentAsString());
+			//TODO may handle JSON
 			return Response.ok(shipment).build();
 		}
 		else{
@@ -179,31 +180,46 @@ public class OrderResource {
 		}
 	}
 	
-	public Shipment getShipmentCost(String order){
-		Request request = client.newRequest(shipmentService + "/shipments/calculate");
-		Order o = stringXMLtoOrder(order);
-
-		Shipment shm = shipConverter.orderToShipment(o);
-		String shipmentXML = shipConverter.shipmentToStringXML(shm);
-
-		StringContentProvider content = new StringContentProvider(shipmentXML);
-		request.method(HttpMethod.POST);
-		request.content(content, MediaType.APPLICATION_XML);
-		request.accept(MediaType.APPLICATION_XML);
-		ContentResponse res = null;
-		try {
-			res = request.send();
-		} catch (InterruptedException | TimeoutException | ExecutionException e) {
-			logger.debug(e.toString());
-		}
-		
-		if(res.getStatus() == Response.Status.OK.getStatusCode()){
-			Shipment shipment = shipConverter.stringXMLtoShipment(res.getContentAsString());
-			return shipment;
-		}
-		return null;
-	}
+	//TODO
+	//not need now
+	//may remove
+//	/**
+//	 * Get the shipment cost from the shipment service.
+//	 * @param order order
+//	 * @return the shipment object.
+//	 */
+//	public Shipment getShipmentCost(String order){
+//		Request request = client.newRequest(shipmentService + "/shipments/calculate");
+//		Order o = stringXMLtoOrder(order);
+//
+//		Shipment shm = shipConverter.orderToShipment(o);
+//		String shipmentXML = shipConverter.shipmentToStringXML(shm);
+//
+//		StringContentProvider content = new StringContentProvider(shipmentXML);
+//		request.method(HttpMethod.POST);
+//		request.content(content, MediaType.APPLICATION_XML);
+//		request.accept(MediaType.APPLICATION_XML);
+//		ContentResponse res = null;
+//		try {
+//			res = request.send();
+//		} catch (InterruptedException | TimeoutException | ExecutionException e) {
+//			logger.debug(e.toString());
+//		}
+//		
+//		if(res.getStatus() == Response.Status.OK.getStatusCode()){
+//			Shipment shipment = shipConverter.stringXMLtoShipment(res.getContentAsString());
+//			return shipment;
+//		}
+//		//Should not happen
+//		return null;
+//	}
 	
+	/**
+	 * Send the request to the payment service for creating a payment from an order.
+	 * @param order order
+	 * @param type content type
+	 * @return 201 Created if the payment is created.
+	 */
 	@POST
 	@Path("/payment")
 	//@RolesAllowed("e-commerce")
@@ -220,8 +236,9 @@ public class OrderResource {
 			o = stringXMLtoOrder(order);
 		}
 
-		Shipment s = getShipmentCost(order);
-		Payment payment = paymentConverter.orderToPayment(o,s);
+		//TODO check validation of the order
+	
+		Payment payment = paymentConverter.orderToPayment(o);
 		String paymentXML = paymentConverter.paymentmentToStringXML(payment);
 		
 		StringContentProvider content = new StringContentProvider(paymentXML);
@@ -239,7 +256,13 @@ public class OrderResource {
 		if(res.getStatus() == Response.Status.CREATED.getStatusCode()){
 			String location = res.getHeaders().get("Location");
 			try {
-				return Response.created(new URI(location)).build();
+				long paymentID = splitID(location);
+				//create order after payment is successfully created.
+				Order createdOrder = createOrder(o, paymentID);
+				return Response.created(new URI((uriInfo.getAbsolutePath() + "").replace("payment/","") + createdOrder.getId())).build();
+				//return Response.created(new URI(location)).build();
+				
+				//TODO decide what should be the return value ? 
 			} catch (URISyntaxException e) {
 				return BAD_REQUEST;
 			}
@@ -248,87 +271,105 @@ public class OrderResource {
 			return BAD_REQUEST;
 		}
 	}
+	
+	//TODO PSUEDO code
+	@GET
+	@Path("{id}/paymentstatus")
+	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	public Response getOrderPaymentStatus(@PathParam("id") long id, @HeaderParam("Accept") String accept) {
+		Order order = dao.find(id);
+		logger.debug("id = " + id + "accept + " + accept);
+		
+		if (order == null)
+			return NOT_FOUND;
+		
+		Payment p = paymentConverter.orderToPayment(order);
+		//TODO send request to ask status from payment service
+		//but now it's now available so this will return randomly.
+		
+		double random = Math.random();
+		if(random >= 0.4){
+			order.setStatus(Order.WAITING);
+			dao.update(order);
+		}
+		
+		if(accept.equals(MediaType.APPLICATION_JSON)){
+			return Response.ok(toJson(order)).build();
+		}
+		return Response.ok(order).build();
+	}
 
 	/**
-	 * Create a new order. If order id is omitted or 0, the server will
+	 * Create a new order. The server will
 	 * assign a unique ID and return it as the location header.
-	 * 
-	 * @param order order
-	 * @param type content-type
-	 * @return URI location
+	 * This method will be called only when the payment is successfully created
+	 * The created order will be return for getting the order id from the server.
+	 * @param order order to be saved
+	 * @param paymentID paymentID
+	 * @return created order
 	 */
-	@POST
-	//@RolesAllowed("e-commerce")
-	@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public Response postOrder(String order, @HeaderParam("Content-Type") String type){//),@HeaderParam("Authorization") String auth){		
-		//if() auth
+	public Order createOrder(Order order,long paymentID){		
 		
-		logger.debug("type = " + type);
-		Order o;
-		if(type.equals(MediaType.APPLICATION_JSON)){
-			o = stringJSONtoOrder(order); 
-		}
-		else{
-			o = stringXMLtoOrder(order);
-		}
+		logger.debug("Create order");
+		Order o = new Order();
 		
-		if (dao.find(o.getId()) == null ){//&& checkItemList(o)) {
-			
-			o.setOrderDate((new Date()).toString());
-			o.setStatus(Order.WAITING); 
-			o.setShipDate("-");
-			o.setPaymentID(-1);
-			o.setShipDate("-");
-			o.setShipmentID(-1);
-			o.setShipmentURI("-");
+		o.seteCommerceOrderID(order.geteCommerceOrderID());
+		o.setShipmentID(-1); //does not have yet
+		o.setShipmentURI("-"); //does not have yet
+		o.setPaymentID(paymentID);
+		o.setOrderDate((new Date()).toString());
+		o.setShipDate("-"); //does not have yet
+		o.setStatus(Order.PENDING_PAYMENT);
+		o.setType(order.getType());
+		o.setCourier_name(order.getCourier_name());
+		o.setCourier_address(order.getCourier_address());
+		o.setReceive_name(order.getReceive_name());
+		o.setReceive_address(order.getReceive_address());
+		o.setRecipientID(order.getRecipientID());
+		o.setSenderID(order.getSenderID());
+		o.setAmount(order.getAmount());
+		o.setItems(order.getItems());
 
-			boolean success = dao.save(o);
-			if (success) {
-				try {
-					return Response.created(new URI(uriInfo.getAbsolutePath()+""+o.getId())).build();
-				} catch (URISyntaxException e) {
-					System.out.println("Error-POST");
-				}
-			}
-			return BAD_REQUEST;
-		}
-		else {
-			return CONFLICT;
-		}
+		dao.save(o);
+		
+		return o;
 	}
 	
-	 /**
-	  * (For E-Commerce)
-	  * Update an order. Only update the attributes supplied in request body.
-	  * @param id internal id
-	  * @param order order
-	  * @return URI location or no content if the updating order is null.
-	  */
-	 @PUT
-	 //@RolesAllowed("e-commerce")
-	 @Path("{id}")
-	 @Consumes(MediaType.APPLICATION_XML)
-	 public Response updateOrder(@PathParam("id") long id, JAXBElement<Order> order){
-		 logger.debug("id = " + id);
-		 
-		 Order o = dao.find(id);
-		 Order update = (Order)order.getValue();
-		 boolean success = false;	
-		
-		 if(o != null){
-			 if(o.getStatus().equals(Order.WAITING)){
-				 o.applyUpdate(update);
-				 if(id == update.getId()){
-					 success = dao.update(o);
-				 }
-				 if(success){
-					 return Response.ok(uriInfo.getAbsolutePath()+"").build();
-				 }
-			 }
-			 return BAD_REQUEST;
-		 } 
-		 return NOT_FOUND;
-	 }
+	//TODO
+	//not need now
+	//may remove
+//	 /**
+//	  * (For E-Commerce)
+//	  * Update an order. Only update the attributes supplied in request body.
+//	  * @param id internal id
+//	  * @param order order
+//	  * @return URI location or no content if the updating order is null.
+//	  */
+//	 @PUT
+//	 //@RolesAllowed("e-commerce")
+//	 @Path("{id}")
+//	 @Consumes(MediaType.APPLICATION_XML)
+//	 public Response updateOrder(@PathParam("id") long id, JAXBElement<Order> order){
+//		 logger.debug("id = " + id);
+//		 
+//		 Order o = dao.find(id);
+//		 Order update = (Order)order.getValue();
+//		 boolean success = false;	
+//		
+//		 if(o != null){
+//			 if(o.getStatus().equals(Order.WAITING)){
+//				 o.applyUpdate(update);
+//				 if(id == update.getId()){
+//					 success = dao.update(o);
+//				 }
+//				 if(success){
+//					 return Response.ok(uriInfo.getAbsolutePath()+"").build();
+//				 }
+//			 }
+//			 return BAD_REQUEST;
+//		 } 
+//		 return NOT_FOUND;
+//	 }
 	 
 	 /**
 	  * (For E-Commerce)
@@ -396,7 +437,7 @@ public class OrderResource {
 		 if(o != null){
 			 if(o.getStatus().equals(Order.IN_PROGRESS)){
 				 o.updateStatus(Order.FULLFILLED);
-				 o.setShipDate((new Date()).toString());
+				 shipOrder(id);
 				 dao.update(o);
 				 
 				 return Response.ok(uriInfo.getAbsolutePath()+"").build();
@@ -404,6 +445,63 @@ public class OrderResource {
 			 return BAD_REQUEST;
 		 } 
 		 return NOT_FOUND;
+	 }
+	 
+	 @PUT
+	 //@RolesAllowed("fulfiller")
+	 @Path("{id}/ship") 
+	 public Response shipOrder(@PathParam("id") long id){
+		 logger.debug("id = " + id);
+		 
+		 Order o = dao.find(id);		
+		 if(o != null){
+			 if(o.getStatus().equals(Order.FULLFILLED)){
+				 
+				 //TODO Integrate send shipmentOrder
+				 String location = "testest/shipments/100/";//sendShipmentOrder(o);
+				 if(location.length() > 0){
+					 o.updateStatus(Order.SHIPPED);
+					 o.setShipDate((new Date()).toString());
+					 o.setShipmentURI(location);
+					 o.setShipmentID(splitID(location));
+					 dao.update(o);
+				 }
+				 dao.update(o);
+				 
+				 return Response.ok(uriInfo.getAbsolutePath()+"").build();
+			 }
+			 return BAD_REQUEST;
+		 } 
+		 return NOT_FOUND;
+	 }
+	 
+	 /**
+	  * Send request for creating shipment.
+	  * @param order order
+	  * @return location of the created Shipment from Shipment Service
+	  */
+	 public String sendShipmentOrder(Order order){
+		 Request request = client.newRequest(shipmentService + "/shipments");
+		 Shipment shipment = shipConverter.orderToShipment(order);
+		 String shipmentXML = shipConverter.shipmentToStringXML(shipment);
+		 
+		 StringContentProvider content = new StringContentProvider(shipmentXML);
+		 request.method(HttpMethod.POST);
+		 request.content(content, MediaType.APPLICATION_XML);
+		 request.accept(MediaType.APPLICATION_XML);
+		 ContentResponse res;
+		 try {
+			 res = request.send();
+			 if(res.getStatus() == Status.CREATED.getStatusCode()){
+				 String location = res.getHeaders().get("Location");
+				 return location;
+			 }
+			 
+		 } catch (InterruptedException | TimeoutException | ExecutionException e) {
+			 logger.debug(e.toString());
+		 }
+		 
+		 return "";
 	 }
 	 
 	
@@ -507,5 +605,36 @@ public class OrderResource {
 
 	 public void setPaymentService(String paymentService) {
 		 this.paymentService = paymentService;
-	 }	 
+	 }	
+	 
+	 /**
+	  * Split the id from the uri
+	  * The id should be after the last slash ("/") of the uri.
+	  * @param uri uri
+	  * @return id 
+	  */
+	 private long splitID(String uri){
+		 char[] ch = uri.toCharArray();
+		 String id = "";
+		 for(int i = ch.length -1 ; i >= 0 ; i--){
+			 if(ch[i] == '/'){
+				 if(id.length() == 0){
+					 continue;
+				 }
+				 else{
+					 break;
+				 }
+			 }
+			 else if(ch[i] >= '0' && ch[i] <= '9'){
+				 id = ch[i] + id;
+			 }
+		 }
+		 long splittedID = -1;
+		 try{
+			 splittedID = Long.parseLong(id);
+		 } catch(NumberFormatException e){
+			 logger.debug(e.toString());
+		 }
+		 return splittedID;
+	 }
 }

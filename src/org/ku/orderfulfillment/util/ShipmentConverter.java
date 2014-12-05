@@ -32,7 +32,6 @@ public class ShipmentConverter {
 		Shipment shm = new Shipment();
 		shm.setCourier_address(order.getCourier_address());
 		shm.setCourier_name(order.getCourier_name());
-		shm.setId(order.getId());
 		shm.setItems(itemsToShipmentItems(order.getItems()));
 		shm.setRecieve_address(order.getReceive_address());
 		shm.setRecieve_name(order.getReceive_name());

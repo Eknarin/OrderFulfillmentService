@@ -26,6 +26,7 @@ public class Payment implements Serializable {
 	private long recipientID;
 	private long senderID;
 	private double amount;
+	private String status;
 
 	public Payment(){}
 

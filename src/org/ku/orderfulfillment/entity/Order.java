@@ -29,7 +29,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Order implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
-	public static final String WAITING = "Waiting";
+	public static final String PENDING_PAYMENT = "Pending Payment"; 
+	public static final String WAITING = "In Queued";
 	public static final String IN_PROGRESS = "In Progress";
 	public static final String FULLFILLED = "Fulfilled";
 	public static final String SHIPPED = "Shipped";
