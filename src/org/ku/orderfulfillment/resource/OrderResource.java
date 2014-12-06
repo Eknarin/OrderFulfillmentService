@@ -142,7 +142,7 @@ public class OrderResource {
 	@POST
 	@Path("/shipmentcost")
 	@RolesAllowed({"admin","e-commerce"})
-	public Response checkOrderShipmentCost(String order, @HeaderParam("Content-Type") String type){
+	public Response checkOrderShipmentCost(String order, @HeaderParam("Content-Type") String type, @HeaderParam("Accept") String accept){
 		logger.debug("type = " + type);
 
 		Request request = client.newRequest(shipmentService + "/shipments/calculate");
@@ -171,7 +171,9 @@ public class OrderResource {
 //		
 //		if(res.getStatus() == Response.Status.OK.getStatusCode()){
 //			Shipment shipment = shipConverter.stringXMLtoShipment(res.getContentAsString());
-//			//TODO may handle JSON
+//			if(accept.equals(MediaType.APPLICATION_JSON)){
+//				return Response.ok(toJson(shipment)).build();
+//			}
 //			return Response.ok(shipment).build();
 //		}
 //		else{
@@ -202,8 +204,6 @@ public class OrderResource {
 		else{
 			o = stringXMLtoOrder(order);
 		}
-
-		//TODO check validation of the order
 	
 		Payment payment = paymentConverter.orderToPayment(o);
 		String paymentXML = paymentConverter.paymentmentToStringXML(payment);
@@ -225,11 +225,8 @@ public class OrderResource {
 			try {
 				long paymentID = splitID(location);
 				//create order after payment is successfully created.
-				Order createdOrder = createOrder(o, paymentID);
+				Order createdOrder = createOrder(o, paymentID,location);
 				return Response.created(new URI((uriInfo.getAbsolutePath() + "").replace("payment/","") + createdOrder.getId())).build();
-				//return Response.created(new URI(location)).build();
-				
-				//TODO decide what should be the return value ? 
 			} catch (URISyntaxException e) {
 				return BAD_REQUEST;
 			}
@@ -274,9 +271,10 @@ public class OrderResource {
 	 * The created order will be return for getting the order id from the server.
 	 * @param order order to be saved
 	 * @param paymentID paymentID
+	 * @param location 
 	 * @return created order
 	 */
-	public Order createOrder(Order order,long paymentID){		
+	public Order createOrder(Order order,long paymentID, String location){		
 		
 		logger.debug("Create order");
 		Order o = new Order();
@@ -297,6 +295,7 @@ public class OrderResource {
 		o.setSenderID(order.getSenderID());
 		o.setAmount(order.getAmount());
 		o.setItems(order.getItems());
+		o.setPaymentURI(location);
 
 		dao.save(o);
 		
@@ -475,6 +474,9 @@ public class OrderResource {
 		 try{
 			 if(o instanceof Orders){
 				 context = JAXBContext.newInstance(Orders.class);
+			 }
+			 else if(o instanceof Shipment){
+				 context = JAXBContext.newInstance(Shipment.class);
 			 }
 			 else{
 				 context = JAXBContext.newInstance(Order.class);

@@ -44,6 +44,7 @@ public class Order implements Serializable {
 	private long shipmentID;
 	private long paymentID;
 	private String shipmentURI;
+	private String paymentURI;
 	private String orderDate;
 	private String shipDate;
 	private String status;
@@ -141,6 +142,9 @@ public class Order implements Serializable {
 		
 		if(update.getAmount() > 0) 
 			this.setAmount(update.getAmount());
+		
+		if(update.getPaymentURI() != null)
+			this.setPaymentURI(update.getPaymentURI());
 	}
 	
 	/**
@@ -295,6 +299,14 @@ public class Order implements Serializable {
 
 	public void setAmount(double amount) {
 		this.amount = amount;
+	}
+
+	public String getPaymentURI() {
+		return paymentURI;
+	}
+
+	public void setPaymentURI(String paymentURI) {
+		this.paymentURI = paymentURI;
 	}
 	
 }
