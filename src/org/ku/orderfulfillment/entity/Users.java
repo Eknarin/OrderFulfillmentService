@@ -10,7 +10,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-
+/**
+ * Wrapper class for user.
+ * 
+ * @author Sarathit, Eknarin, Natcha, Natchanon
+ */
 @Entity
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -22,11 +26,13 @@ public class Users {
 		
 	}
 	
+	/**constructor*/
 	public Users(User user) {
 		users = new ArrayList<>();
 		users.add(user);
 	}
 	
+	/**constructor*/
 	public Users(List<User> list){
 		users = list;
 	}

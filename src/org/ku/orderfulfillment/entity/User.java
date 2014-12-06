@@ -12,6 +12,15 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * User class.
+ * There are 3 user's roles,
+ * e-commerce - the e-commerce
+ * fulfiller - the fulfiller of the e-commerce
+ * admin - administrator
+ * 
+ * @author Sarathit, Eknarin, Natcha, Natchanon
+ */
 @Entity
 @Table(name = "users")
 @XmlRootElement(name = "user")
@@ -27,24 +36,21 @@ public class User implements Serializable {
 	private String role;
 	private String company;
 
-	public User() {
-
-	}
+	/**constructor*/
+	public User() {}
 	
+	/**getters and setters*/
 	public String getRole() {
 		return role;
 	}
-
 
 	public void setRole(String role) {
 		this.role = role;
 	}
 
-
 	public String getCompany() {
 		return company;
 	}
-
 
 	public void setCompany(String company) {
 		this.company = company;

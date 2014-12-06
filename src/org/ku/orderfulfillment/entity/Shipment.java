@@ -12,9 +12,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * Shipment class represents the shipment,
+ * used for sending the request to the shipment service.
  * 
- * 
- * @author Sarathit
+ * @author Sarathit, Eknarin, Natcha, Natchanon
  */
 @Entity
 @XmlRootElement(name = "shipment")
@@ -35,6 +36,7 @@ public class Shipment implements Serializable {
 
 	public Shipment(){}
 
+	/**getters and setters*/
 	public long getId() {
 		return id;
 	}

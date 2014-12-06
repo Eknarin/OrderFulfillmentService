@@ -12,9 +12,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * Payment class represents the payment,
+ * used for sending the request to the payment service.
  * 
- * 
- * @author Sarathit
+ * @author Sarathit, Eknarin, Natcha, Natchanon
  */
 @Entity
 @XmlRootElement(name = "payment")
@@ -30,6 +31,7 @@ public class Payment implements Serializable {
 
 	public Payment(){}
 
+	/**getters and setters*/
 	public long getId() {
 		return id;
 	}
@@ -62,5 +64,12 @@ public class Payment implements Serializable {
 		this.amount = amount;
 	}
 
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
 	
 }

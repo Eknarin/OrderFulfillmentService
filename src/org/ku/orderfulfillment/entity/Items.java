@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /***
- * Wrapper class for Item
- * @author Sarathit
- *
+ * Wrapper class for Item.
+ * 
+ * @author Sarathit, Eknarin, Natcha, Natchanon
  */
 @Entity
 @XmlRootElement

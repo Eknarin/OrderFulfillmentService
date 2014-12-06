@@ -17,8 +17,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * An order will be placed from an e-commerce, the order has
- * externalID, id(auto-gen), List of ordered item id, order date,
- * fulfill date, status and the url.
+ * externalID, id(auto-gen) and other need attributes for creating
+ * Payment and Shipment
  * 
  * @author Sarathit, Eknarin, Natcha, Natchanon
  */
@@ -164,7 +164,6 @@ public class Order implements Serializable {
 	}
 
 	/**Getters and Setters*/
-	
 	public long getId() {
 		return id;
 	}

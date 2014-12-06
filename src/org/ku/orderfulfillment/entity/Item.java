@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * Item class represents the products or the items in the order list.
  * 
  * @author Sarathit, Eknarin, Natcha, Natchanon
  */
@@ -44,6 +45,7 @@ public class Item implements Serializable{
 		this.id = id;
 	}
 
+	/**getters and setters*/
 	public long getId() {
 		return id;
 	}

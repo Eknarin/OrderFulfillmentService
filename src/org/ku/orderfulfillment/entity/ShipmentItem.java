@@ -9,6 +9,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * Item class for the shipment attribute
+ * (Item in this service is not the same as shipment service)
  * 
  * @author Sarathit, Eknarin, Natcha, Natchanon
  */
@@ -40,6 +42,7 @@ public class ShipmentItem implements Serializable{
 		this.id = id;
 	}
 
+	/**getters and setters*/
 	public long getId() {
 		return id;
 	}

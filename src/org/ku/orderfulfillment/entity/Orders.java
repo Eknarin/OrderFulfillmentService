@@ -11,8 +11,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /***
  * Wrapper class for Order
- * @author Sarathit
- *
+ * 
+ * @author Sarathit, Eknarin, Natcha, Natchanon
  */
 @Entity
 @XmlRootElement
