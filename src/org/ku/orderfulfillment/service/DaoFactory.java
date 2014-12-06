@@ -28,6 +28,12 @@ public abstract class DaoFactory {
 	public abstract OrderDao getOrderDao();
 	
 	/**
+	 * Get an instance of a data access object for User objects.
+	 * @return instance of User's DAO
+	 */
+	public abstract UserDao getUserDao();
+	
+	/**
 	 * Shutdown all persistence services.
 	 * This method gives the persistence framework a chance to
 	 * gracefully save data and close databases before the

@@ -33,7 +33,7 @@ public class Order implements Serializable {
 	public static final String WAITING = "In Queued";
 	public static final String IN_PROGRESS = "In Progress";
 	public static final String FULLFILLED = "Fulfilled";
-	public static final String SHIPPED = "Shipped";
+	public static final String SHIPPING = "Shipping";
 	public static final String CANCELED = "Canceled";
 
 	@Id

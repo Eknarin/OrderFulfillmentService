@@ -8,8 +8,8 @@ import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Singleton;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -24,7 +24,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
@@ -36,7 +35,6 @@ import org.eclipse.jetty.client.util.StringContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
 import org.json.JSONObject;
 import org.json.XML;
-import org.ku.orderfulfillment.entity.Items;
 import org.ku.orderfulfillment.entity.Order;
 import org.ku.orderfulfillment.entity.Orders;
 import org.ku.orderfulfillment.entity.Payment;
@@ -98,7 +96,7 @@ public class OrderResource {
 	 * @return all order(s) in the order list.
 	 */
 	@GET
-	//@RolesAllowed("fulfiller")
+	@RolesAllowed({"admin","fulfiller"})
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response getOrders(@HeaderParam("Accept") String accept) {
 		logger.debug("accept = " + accept);
@@ -120,7 +118,7 @@ public class OrderResource {
 	 */
 	@GET
 	@Path("{id}")
-	//@RolesAllowed({"fulfiller","e-commerce"})
+	@RolesAllowed({"admin","fulfiller","e-commerce"})
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response getOrderById(@PathParam("id") long id, @HeaderParam("Accept") String accept) {
 		Order order = dao.find(id);
@@ -143,7 +141,7 @@ public class OrderResource {
 	 */
 	@POST
 	@Path("/shipmentcost")
-	//@RolesAllowed("e-commerce")
+	@RolesAllowed({"admin","e-commerce"})
 	public Response checkOrderShipmentCost(String order, @HeaderParam("Content-Type") String type){
 		logger.debug("type = " + type);
 
@@ -183,40 +181,6 @@ public class OrderResource {
 		return Response.ok(shm).build();
 	}
 	
-	//TODO
-	//not need now
-	//may remove
-//	/**
-//	 * Get the shipment cost from the shipment service.
-//	 * @param order order
-//	 * @return the shipment object.
-//	 */
-//	public Shipment getShipmentCost(String order){
-//		Request request = client.newRequest(shipmentService + "/shipments/calculate");
-//		Order o = stringXMLtoOrder(order);
-//
-//		Shipment shm = shipConverter.orderToShipment(o);
-//		String shipmentXML = shipConverter.shipmentToStringXML(shm);
-//
-//		StringContentProvider content = new StringContentProvider(shipmentXML);
-//		request.method(HttpMethod.POST);
-//		request.content(content, MediaType.APPLICATION_XML);
-//		request.accept(MediaType.APPLICATION_XML);
-//		ContentResponse res = null;
-//		try {
-//			res = request.send();
-//		} catch (InterruptedException | TimeoutException | ExecutionException e) {
-//			logger.debug(e.toString());
-//		}
-//		
-//		if(res.getStatus() == Response.Status.OK.getStatusCode()){
-//			Shipment shipment = shipConverter.stringXMLtoShipment(res.getContentAsString());
-//			return shipment;
-//		}
-//		//Should not happen
-//		return null;
-//	}
-	
 	/**
 	 * Send the request to the payment service for creating a payment from an order.
 	 * @param order order
@@ -225,7 +189,7 @@ public class OrderResource {
 	 */
 	@POST
 	@Path("/payment")
-	//@RolesAllowed("e-commerce")
+	@RolesAllowed({"admin","e-commerce"})
 	public Response checkPayment(String order, @HeaderParam("Content-Type") String type){
 
 		logger.debug("type = " + type);
@@ -279,6 +243,7 @@ public class OrderResource {
 	@GET
 	@Path("{id}/paymentstatus")
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	@RolesAllowed({"admin","fulfiller"})
 	public Response getOrderPaymentStatus(@PathParam("id") long id, @HeaderParam("Accept") String accept) {
 		Order order = dao.find(id);
 		logger.debug("id = " + id + "accept + " + accept);
@@ -337,42 +302,6 @@ public class OrderResource {
 		
 		return o;
 	}
-	
-	//TODO
-	//not need now
-	//may remove
-//	 /**
-//	  * (For E-Commerce)
-//	  * Update an order. Only update the attributes supplied in request body.
-//	  * @param id internal id
-//	  * @param order order
-//	  * @return URI location or no content if the updating order is null.
-//	  */
-//	 @PUT
-//	 //@RolesAllowed("e-commerce")
-//	 @Path("{id}")
-//	 @Consumes(MediaType.APPLICATION_XML)
-//	 public Response updateOrder(@PathParam("id") long id, JAXBElement<Order> order){
-//		 logger.debug("id = " + id);
-//		 
-//		 Order o = dao.find(id);
-//		 Order update = (Order)order.getValue();
-//		 boolean success = false;	
-//		
-//		 if(o != null){
-//			 if(o.getStatus().equals(Order.WAITING)){
-//				 o.applyUpdate(update);
-//				 if(id == update.getId()){
-//					 success = dao.update(o);
-//				 }
-//				 if(success){
-//					 return Response.ok(uriInfo.getAbsolutePath()+"").build();
-//				 }
-//			 }
-//			 return BAD_REQUEST;
-//		 } 
-//		 return NOT_FOUND;
-//	 }
 	 
 	 /**
 	  * (For E-Commerce)
@@ -381,7 +310,7 @@ public class OrderResource {
 	  * @return URI location or no content if the updating order is null.
 	  */
 	 @PUT
-	 //@RolesAllowed("e-commerce")
+	 @RolesAllowed({"admin","e-commerce"})
 	 @Path("{id}/cancel")
 	 public Response cancelOrder(@PathParam("id") long id){
 		 logger.debug("id = " + id);
@@ -406,7 +335,7 @@ public class OrderResource {
 	  * @return URI location or no content if the updating order is null.
 	  */
 	 @PUT
-	 //@RolesAllowed("fulfiller")
+	 @RolesAllowed({"admin","fulfiller"})
 	 @Path("{id}/grab")
 	 public Response grabOrder(@PathParam("id") long id){
 		 logger.debug("id = " + id);
@@ -431,7 +360,7 @@ public class OrderResource {
 	  * @return URI location or no content if the updating order is null.
 	  */
 	 @PUT
-	 //@RolesAllowed("fulfiller")
+	 @RolesAllowed({"admin","fulfiller"})
 	 @Path("{id}/fulfill") 
 	 public Response fulfillOrder(@PathParam("id") long id){
 		 logger.debug("id = " + id);
@@ -451,7 +380,7 @@ public class OrderResource {
 	 }
 	 
 	 @PUT
-	 //@RolesAllowed("fulfiller")
+	 @RolesAllowed({"admin","fulfiller"})
 	 @Path("{id}/ship") 
 	 public Response shipOrder(@PathParam("id") long id){
 		 logger.debug("id = " + id);
@@ -463,7 +392,7 @@ public class OrderResource {
 				 //TODO Integrate send shipmentOrder
 				 String location = "testest/shipments/100/";//sendShipmentOrder(o);
 				 if(location.length() > 0){
-					 o.updateStatus(Order.SHIPPED);
+					 o.updateStatus(Order.SHIPPING);
 					 o.setShipDate((new Date()).toString());
 					 o.setShipmentURI(location);
 					 o.setShipmentID(splitID(location));
@@ -516,7 +445,7 @@ public class OrderResource {
 	  * @return message for deleted id.
 	  */
 	 @DELETE
-	 //@RolesAllowed("fulfiller")
+	 @RolesAllowed({"admin","fulfiller"})
 	 @Path("{id}")
 	 public Response deleteOrder(@PathParam("id") long id){
 		 logger.debug("id = " + id);

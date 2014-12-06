@@ -10,6 +10,7 @@
 	<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
 	<!-- save objects from these Java classes -->
 	<class>org.ku.orderfulfillment.entity.Order</class>
+	<class>org.ku.orderfulfillment.entity.User</class>
 	<!-- describe the database for JPA -->
 	<properties>
 		<property name="javax.persistence.jdbc.url" value="jdbc:derby:/tmp/orderdb;create=true" />
