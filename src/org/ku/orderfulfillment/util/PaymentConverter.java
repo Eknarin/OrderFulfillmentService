@@ -18,9 +18,10 @@ import org.ku.orderfulfillment.entity.Shipment;
 import org.ku.orderfulfillment.entity.ShipmentItem;
 
 /**
- * Shipment converter
+ * Payment converter, used for converting payment to order
+ * or xml string back and forth by marshaling and unmarshaling 
  * 
- * @author Sarathit
+ * @author Sarathit, Eknarin, Natcha, Natchanon
  */
 
 public class PaymentConverter {
@@ -29,6 +30,11 @@ public class PaymentConverter {
 	public PaymentConverter() {
 	}
 
+	/**
+	 * Convert order object to payment object
+	 * @param o order
+	 * @return payment object
+	 */
 	public Payment orderToPayment(Order o) {
 		Payment pay = new Payment();
 		pay.setRecipientID(o.getRecipientID());
@@ -37,6 +43,11 @@ public class PaymentConverter {
 		return pay;
 	}
 
+	/**
+	 * Convert payment object into xml string
+	 * @param payment payment
+	 * @return convreted xml string
+	 */
 	public String paymentmentToStringXML(Payment payment) {
 		JAXBContext context;
 		StringWriter sw = new StringWriter();

@@ -17,9 +17,10 @@ import org.ku.orderfulfillment.entity.Shipment;
 import org.ku.orderfulfillment.entity.ShipmentItem;
 
 /**
- * Shipment converter
+ * Shipment converter, used for converting shipment to order
+ * or xml string back and forth by marshaling and unmarshaling 
  * 
- * @author Sarathit
+ * @author Sarathit, Eknarin, Natcha, Natchanon
  */
 
 public class ShipmentConverter {
@@ -28,6 +29,11 @@ public class ShipmentConverter {
 	public ShipmentConverter() {
 	}
 
+	/**
+	 * Convert order object into shipment object.
+	 * @param order order
+	 * @return shipment
+	 */
 	public Shipment orderToShipment(Order order) {
 		Shipment shm = new Shipment();
 		shm.setCourier_address(order.getCourier_address());
@@ -39,6 +45,11 @@ public class ShipmentConverter {
 		return shm;
 	}
 
+	/**
+	 * Convert items from order into list of shipmentItem
+	 * @param items items
+	 * @return list of shipmentItem
+	 */
 	public List<ShipmentItem> itemsToShipmentItems(Items items) {
 		List<ShipmentItem> list = new ArrayList<ShipmentItem>();
 
@@ -53,6 +64,11 @@ public class ShipmentConverter {
 		return list;
 	}
 
+	/**
+	 * Convert shipment object into xml string
+	 * @param shipment shipment
+	 * @return converted xml string
+	 */
 	public String shipmentToStringXML(Shipment shipment) {
 		JAXBContext context;
 		StringWriter sw = new StringWriter();
@@ -68,6 +84,11 @@ public class ShipmentConverter {
 		return null;
 	}
 
+	/**
+	 * Convert xml string into shipment object.
+	 * @param xml xml string
+	 * @return shipment object
+	 */
 	public Shipment stringXMLtoShipment(String xml){
 		JAXBContext context;
 		 try {
