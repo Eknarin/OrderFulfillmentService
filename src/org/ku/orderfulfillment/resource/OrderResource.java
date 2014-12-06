@@ -72,11 +72,13 @@ public class OrderResource {
 	private String shipmentService = "http://10.2.31.107:8080";
 	private String paymentService = "http://128.199.212.108:25052";
 	
+	/**client for sending a request*/
 	private static HttpClient client;
 	
 	private ShipmentConverter shipConverter;
 	private PaymentConverter paymentConverter;
 
+	/**constructor*/
 	public OrderResource() {
 		dao = DaoFactory.getInstance().getOrderDao();
 		logger = LoggerFactory.getLogger(this.getClass().getSimpleName());
@@ -100,7 +102,6 @@ public class OrderResource {
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response getOrders(@HeaderParam("Accept") String accept) {
 		logger.debug("accept = " + accept);
-		
 		Orders orders = new Orders(dao.findAll());
 		
 		if(accept.equals(MediaType.APPLICATION_JSON)){
@@ -250,7 +251,7 @@ public class OrderResource {
 		
 		Payment p = paymentConverter.orderToPayment(order);
 		//TODO send request to ask status from payment service
-		//but now it's now available so this will return randomly.
+		//but now it's not available so this will return randomly.
 		
 		double random = Math.random();
 		if(random >= 0.4){
@@ -304,7 +305,7 @@ public class OrderResource {
 	 
 	 /**
 	  * (For E-Commerce)
-	  * Cancel an order
+	  * Cancel an order, possible when it's in waiting state.
 	  * @param id internal id
 	  * @return URI location or no content if the updating order is null.
 	  */
@@ -329,7 +330,7 @@ public class OrderResource {
 	 
 	 /**
 	  * (For Fulfiller)
-	  * Update an order status
+	  * Grab the order, update an order status from waiting to in progress
 	  * @param id internal id
 	  * @return URI location or no content if the updating order is null.
 	  */
@@ -354,7 +355,9 @@ public class OrderResource {
 	 
 	 /**
 	  * (For Fulfiller)
-	  * Update an order status
+	  * Fulfill the order, update an order status from in progress to fulfilled
+	  * and immediately send the request to the shipment service
+	  * if success, update order status to shipping.
 	  * @param id internal id
 	  * @return URI location or no content if the updating order is null.
 	  */
@@ -378,6 +381,12 @@ public class OrderResource {
 		 return NOT_FOUND;
 	 }
 	 
+	 /**
+	  * Ship the order, update an order status from fulfilled to shipping.
+	  * Will be used again if it was failed at the first request.
+	  * @param id
+	  * @return
+	  */
 	 @PUT
 	 @RolesAllowed({"admin","fulfiller"})
 	 @Path("{id}/ship") 
@@ -407,7 +416,7 @@ public class OrderResource {
 	 }
 	 
 	 /**
-	  * Send request for creating shipment.
+	  * Send the request to shipment service for creating shipment.
 	  * @param order order
 	  * @return location of the created Shipment from Shipment Service
 	  */
@@ -525,6 +534,7 @@ public class OrderResource {
 		 return stringXMLtoOrder(xml);
 	 }
 	 
+	 /**getters and setters*/
 	 public String getShipmentService() {
 		 return shipmentService;
 	 }
@@ -545,7 +555,7 @@ public class OrderResource {
 	  * Split the id from the uri
 	  * The id should be after the last slash ("/") of the uri.
 	  * @param uri uri
-	  * @return id 
+	  * @return id splitted id
 	  */
 	 private long splitID(String uri){
 		 char[] ch = uri.toCharArray();
