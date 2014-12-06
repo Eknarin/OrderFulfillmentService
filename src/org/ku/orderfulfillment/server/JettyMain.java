@@ -26,9 +26,8 @@ import org.ku.orderfulfillment.service.jpa.JpaDaoFactory;
  */
 public class JettyMain {
 	
-	//TODO
 	/** 
-	 * The default port to listen on. Typically 80 or 8080.  
+	 * The default port to listen on.
 	 */
 	static final int PORT = 5722;
 	private static Server server;
@@ -79,6 +78,11 @@ public class JettyMain {
 		return "";
 	}
 	
+	/**
+	 * Set the context to be a security context.
+	 * @param handler handler to be set.
+	 * @return security handler
+	 */
 	private static Handler getSecurityHandler(ServletContextHandler handler) {
 		// params to LoginService are realm name and properties file.
 

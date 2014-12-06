@@ -27,17 +27,6 @@ public interface OrderDao {
 	 *   If no order, returns an empty list.
 	 */
 	public abstract List<Order> findAll();
-	
-	//TODO
-//	/**
-//	 * Find a order whose title starts with the  
-//	 * string parameter (the way Gmail does).
-//	 * @param prefix a string containing the start 
-//	 * of a order title.  Must not be null.
-//	 * @return List of matching orders. Return an empty list
-//	 * if no matches.
-//	 */
-//	public abstract List<Order> findByTitle(String prefix);
 
 	/**
 	 * Delete a saved order by id.

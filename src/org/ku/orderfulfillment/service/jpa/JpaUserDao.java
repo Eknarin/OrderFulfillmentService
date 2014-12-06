@@ -14,6 +14,14 @@ import org.ku.orderfulfillment.entity.Order;
 import org.ku.orderfulfillment.entity.User;
 import org.ku.orderfulfillment.service.UserDao;
 
+/**
+ * Data access object for saving and retrieving users,
+ * using JPA.
+ * To get an instance of this class use:
+ * dao = DaoFactory.getInstance().getUserDao()
+ * 
+ * @author Sarathit, Eknarin, Natcha, Natchanon
+ */
 public class JpaUserDao implements UserDao{
 
 	/** the EntityManager for accessing JPA persistence services. */
@@ -23,10 +31,10 @@ public class JpaUserDao implements UserDao{
 		this.em = em;
 		createTestUser();
 	}
-	/** add orders for testing. 
+	/** add users for testing. 
 	 * @throws Exception */
 	private void createTestUser( ) throws Exception {
-		long id = 9999; // usually we should let JPA set the id
+		long id = 9999;
 		if (find(id) == null) {
 			
 			User testUser = new User();
@@ -45,13 +53,6 @@ public class JpaUserDao implements UserDao{
 	public User find(long id) {
 		return em.find(User.class, id);
 	}
-
-//
-//	@Override
-//	public boolean update(User user) {
-//		// TODO Auto-generated method stub
-//		return false;
-//	}
 
 	@Override
 	public boolean save(User user) {

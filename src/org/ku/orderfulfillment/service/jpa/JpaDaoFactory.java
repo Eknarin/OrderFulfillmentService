@@ -12,8 +12,11 @@ import org.ku.orderfulfillment.service.OrderDao;
 import org.ku.orderfulfillment.service.UserDao;
 
 /**
- * Jpa DAO Factory
+ * JpaDaoFactory is a factory for DAO that use the Java Persistence API (JPA)
+ * to persist objects.
+ * The factory depends on the configuration information in META-INF/persistence.xml.
  * 
+ * @see contact.service.DaoFactory
  * @author Sarathit, Eknarin, Natcha, Natchanon
  */
 public class JpaDaoFactory extends DaoFactory {

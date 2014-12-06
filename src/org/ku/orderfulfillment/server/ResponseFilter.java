@@ -10,11 +10,18 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * Class for filtering returned response from the server.
+ * Allow access control for GET POST PUT DELETE method
+ * so that the client can call those method without an error.
+ * 
+ * @author Sarathit, Eknarin, Natcha, Natchanon
+ */
 public class ResponseFilter implements Filter {
 
+	@Override
 	public void destroy() {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
