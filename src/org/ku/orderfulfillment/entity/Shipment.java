@@ -27,12 +27,12 @@ public class Shipment implements Serializable {
 	private String type;
 	private String courier_name;
 	private String courier_address;
-	private String recieve_name;
-	private String recieve_address;
+	private String receive_name;
+	private String receive_address;
 	private float total_weight;
 	private float total_cost;
-	@XmlElement(name = "item")
-	private List<ShipmentItem> items = new ArrayList<ShipmentItem>();
+	@XmlElement(name = "items")
+	private ShipmentItems items;
 
 	public Shipment(){}
 
@@ -70,19 +70,19 @@ public class Shipment implements Serializable {
 	}
 
 	public String getRecieve_name() {
-		return recieve_name;
+		return receive_name;
 	}
 
 	public void setRecieve_name(String recieve_name) {
-		this.recieve_name = recieve_name;
+		this.receive_name = recieve_name;
 	}
 
 	public String getRecieve_address() {
-		return recieve_address;
+		return receive_address;
 	}
 
 	public void setRecieve_address(String recieve_address) {
-		this.recieve_address = recieve_address;
+		this.receive_address = recieve_address;
 	}
 
 	public float getTotal_cost() {
@@ -101,11 +101,11 @@ public class Shipment implements Serializable {
 		this.total_weight = total_weight;
 	}
 
-	public List<ShipmentItem> getItems() {
+	public ShipmentItems getItems() {
 		return items;
 	}
 
-	public void setItems(List<ShipmentItem> items) {
+	public void setItems(ShipmentItems items) {
 		this.items = items;
 	}
 }

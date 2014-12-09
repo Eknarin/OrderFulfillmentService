@@ -15,6 +15,7 @@ import org.ku.orderfulfillment.entity.Items;
 import org.ku.orderfulfillment.entity.Order;
 import org.ku.orderfulfillment.entity.Shipment;
 import org.ku.orderfulfillment.entity.ShipmentItem;
+import org.ku.orderfulfillment.entity.ShipmentItems;
 
 /**
  * Shipment converter, used for converting shipment to order
@@ -50,7 +51,7 @@ public class ShipmentConverter {
 	 * @param items items
 	 * @return list of shipmentItem
 	 */
-	public List<ShipmentItem> itemsToShipmentItems(Items items) {
+	public ShipmentItems itemsToShipmentItems(Items items) {
 		List<ShipmentItem> list = new ArrayList<ShipmentItem>();
 
 		for (Item i : items.getItemList()) {
@@ -61,7 +62,7 @@ public class ShipmentConverter {
 			si.setWeight(i.getWeight());
 			list.add(si);
 		}
-		return list;
+		return new ShipmentItems(list);
 	}
 
 	/**

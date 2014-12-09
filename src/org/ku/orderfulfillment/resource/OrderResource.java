@@ -28,10 +28,12 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.derby.impl.sql.catalog.SYSPERMSRowFactory;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.StringContentProvider;
+import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
 import org.json.JSONObject;
 import org.json.XML;
@@ -69,7 +71,7 @@ public class OrderResource {
 	private final Response NO_CONTENT = Response.status(Status.NO_CONTENT).build();
 	private final Response NOT_FOUND = Response.status(Status.NOT_FOUND).build();
 	
-	private String shipmentService = "http://10.2.31.107:8080";
+	private String shipmentService = "http://track-trace.tk:8080";
 	private String paymentService = "http://128.199.212.108:25052";
 	
 	/**client for sending a request*/
@@ -145,7 +147,7 @@ public class OrderResource {
 	@RolesAllowed({"admin","e-commerce"})
 	public Response checkOrderShipmentCost(String order, @HeaderParam("Content-Type") String type, @HeaderParam("Accept") String accept){
 		logger.debug("type = " + type);
-
+		System.out.println("shipment cost");
 		Request request = client.newRequest(shipmentService + "/shipments/calculate");
 		Order o ;
 		if(type.equals(MediaType.APPLICATION_JSON)){
@@ -162,26 +164,25 @@ public class OrderResource {
 		request.content(content, MediaType.APPLICATION_XML);
 		request.accept(MediaType.APPLICATION_XML);
 		ContentResponse res;
-		//TODO get this comment back
-//		try {
-//			res = request.send();
-//		} catch (InterruptedException | TimeoutException | ExecutionException e) {
-//			logger.debug(e.toString());
-//			return BAD_REQUEST;
-//		}
-//		
-//		if(res.getStatus() == Response.Status.OK.getStatusCode()){
-//			Shipment shipment = shipConverter.stringXMLtoShipment(res.getContentAsString());
-//			if(accept.equals(MediaType.APPLICATION_JSON)){
-//				return Response.ok(toJson(shipment)).build();
-//			}
-//			return Response.ok(shipment).build();
-//		}
-//		else{
-//			return BAD_REQUEST;
-//		}
-		shm.setTotal_cost((long)Math.random()*1000);
-		return Response.ok(shm).build();
+		try {
+			res = request.send();
+		} catch (InterruptedException | TimeoutException | ExecutionException e) {
+			logger.debug(e.toString());
+			return BAD_REQUEST;
+		}
+		
+		if(res.getStatus() == Response.Status.OK.getStatusCode()){
+			Shipment shipment = shipConverter.stringXMLtoShipment(res.getContentAsString());
+			if(accept.equals(MediaType.APPLICATION_JSON)){
+				return Response.ok(toJson(shipment)).build();
+			}
+			return Response.ok(shipment).build();
+		}
+		else{
+			return BAD_REQUEST;
+		}
+		//shm.setTotal_cost((long)Math.random()*1000);
+		//return Response.ok(shm).build();
 	}
 	
 	/**
@@ -205,7 +206,7 @@ public class OrderResource {
 		else{
 			o = stringXMLtoOrder(order);
 		}
-	
+	//TODO integrate with new service
 		Payment payment = paymentConverter.orderToPayment(o);
 		String paymentXML = paymentConverter.paymentmentToStringXML(payment);
 		
@@ -371,7 +372,7 @@ public class OrderResource {
 		 if(o != null){
 			 if(o.getStatus().equals(Order.IN_PROGRESS)){
 				 o.updateStatus(Order.FULLFILLED);
-				 shipOrder(id);
+				 //shipOrder(id);
 				 dao.update(o);
 				 
 				 return Response.ok(uriInfo.getAbsolutePath()+"").build();
@@ -388,7 +389,7 @@ public class OrderResource {
 	  * @return
 	  */
 	 @PUT
-	 @RolesAllowed({"admin","fulfiller"})
+	 //@RolesAllowed({"admin","fulfiller"})
 	 @Path("{id}/ship") 
 	 public Response shipOrder(@PathParam("id") long id){
 		 logger.debug("id = " + id);
@@ -398,17 +399,17 @@ public class OrderResource {
 			 if(o.getStatus().equals(Order.FULLFILLED)){
 				 
 				 //TODO Integrate send shipmentOrder
-				 String location = "testest/shipments/100/";//sendShipmentOrder(o);
+				 //String location = "testest/shipments/100/";
+				 String location = sendShipmentOrder(o);
+				 System.out.println("Location : " + location);
 				 if(location.length() > 0){
 					 o.updateStatus(Order.SHIPPING);
 					 o.setShipDate((new Date()).toString());
 					 o.setShipmentURI(location);
 					 o.setShipmentID(splitID(location));
 					 dao.update(o);
+					 return Response.ok(uriInfo.getAbsolutePath()+"").build();
 				 }
-				 dao.update(o);
-				 
-				 return Response.ok(uriInfo.getAbsolutePath()+"").build();
 			 }
 			 return BAD_REQUEST;
 		 } 
@@ -429,11 +430,13 @@ public class OrderResource {
 		 request.method(HttpMethod.POST);
 		 request.content(content, MediaType.APPLICATION_XML);
 		 request.accept(MediaType.APPLICATION_XML);
+		 //TODO change with php
+		 request.header(HttpHeader.AUTHORIZATION, "a2abbefe525c2b4c29defae5c067e554");
 		 ContentResponse res;
 		 try {
 			 res = request.send();
 			 if(res.getStatus() == Status.CREATED.getStatusCode()){
-				 String location = res.getHeaders().get("Location");
+				 String location = res.getHeaders().get(HttpHeader.LOCATION);
 				 return location;
 			 }
 			 

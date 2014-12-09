@@ -48,6 +48,7 @@ public class JpaOrderDao implements OrderDao {
 			Items items = new Items(list);
 			Order test = new Order(1234L, items, "EMS", "BB", "BB-HOME", "Kyuuri", "Kyuuri-Home",23,24,320);
 			test.setId(id);
+			test.setStatus(Order.FULLFILLED);
 			save(test);
 		}
 	}
