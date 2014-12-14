@@ -31,7 +31,7 @@ public class JettyMain {
 	/** 
 	 * The default port to listen on.
 	 */
-	static final int PORT = 5722;
+	static final int PORT = 8000;
 	private static Server server;
 
 	/**

@@ -105,6 +105,7 @@ public class OrderResource {
 	/**
 	 * Get all orders.
 	 * 
+	 * @param request request
 	 * @return all order(s) in the order list.
 	 */
 	@GET
@@ -122,6 +123,7 @@ public class OrderResource {
 	 * 
 	 * @param id id of the order
 	 * @param accept type of content
+	 * @param request request
 	 * @return order with specific id
 	 */
 	@GET
@@ -143,6 +145,7 @@ public class OrderResource {
 	 * Ask for a shipment cost of an order.
 	 * @param order order
 	 * @param type type of shipment
+	 * @param request request
 	 * @return shipment cost
 	 */
 	@POST
@@ -190,11 +193,12 @@ public class OrderResource {
 	 * Send the request to the payment service for creating a payment from an order.
 	 * @param order order
 	 * @param type content type
+	 * @param request request
 	 * @return 201 Created if the payment is created.
 	 */
 	@POST
 	@Path("/payment")
-	//@RolesAllowed({"admin","e-commerce"})
+	@RolesAllowed({"admin","e-commerce"})
 	public Response checkPayment(String order, @HeaderParam("Content-Type") String type){
 
 		logger.info("POST PAYMENT type = " + type);
@@ -244,6 +248,14 @@ public class OrderResource {
 		}
 	}
 	
+	/**
+	 * Check the payment status of the order, if it is success
+	 * the order status will be update to waiting
+	 * @param id order id
+	 * @param accept type of content
+	 * @param request request
+	 * @return order
+	 */
 	@GET
 	@Path("{id}/paymentstatus")
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -256,7 +268,9 @@ public class OrderResource {
 		
 		if (order == null)
 			return NOT_FOUND;
-		
+		if(!order.getStatus().equals(Order.PENDING_PAYMENT))
+			return BAD_REQUEST;
+					
 		logger.info(order.getPaymentURI()+"/status");
 		Request req = client.newRequest(order.getPaymentURI()+"/status");
 		req.method(HttpMethod.GET);
@@ -319,6 +333,7 @@ public class OrderResource {
 	  * (For E-Commerce)
 	  * Cancel an order, possible when it's in waiting state.
 	  * @param id internal id
+	  * @param request request
 	  * @return URI location or no content if the updating order is null.
 	  */
 	 @PUT
@@ -344,6 +359,7 @@ public class OrderResource {
 	  * (For Fulfiller)
 	  * Grab the order, update an order status from waiting to in progress
 	  * @param id internal id
+	  * @param request request
 	  * @return URI location or no content if the updating order is null.
 	  */
 	 @PUT
@@ -370,6 +386,7 @@ public class OrderResource {
 	  * (For Fulfiller)
 	  * Fulfill the order, update an order status from in progress to fulfilled.
 	  * @param id internal id
+	  * @param request request
 	  * @return URI location or no content if the updating order is null.
 	  */
 	 @PUT
@@ -396,6 +413,7 @@ public class OrderResource {
 	  * (For Fulfiller)
 	  * Revert the order status back 1 step.
 	  * @param id internal id
+	  * @param request request
 	  * @return URI location or no content if the updating order is null.
 	  */
 	 @PUT
@@ -435,7 +453,8 @@ public class OrderResource {
 	  * Ship the order, update an order status from fulfilled to shipping.
 	  * Will be used again if it was failed at the first request.
 	  * @param id
-	  * @return
+	  * @param request request
+	  * @return uri of the order
 	  */
 	 @PUT
 	 @RolesAllowed({"admin","fulfiller"})
@@ -478,7 +497,6 @@ public class OrderResource {
 		 request.content(content, MediaType.APPLICATION_XML);
 		 request.accept(MediaType.APPLICATION_XML);
 		 
-		 //TODO change with php
 		 String token="";
 		 try {
 			FileInputStream file = new FileInputStream("/home/sb/access_token.txt");
@@ -619,23 +637,6 @@ public class OrderResource {
 		 return stringXMLtoOrder(xml);
 	 }
 	 
-	 /**getters and setters*/
-	 public String getShipmentService() {
-		 return shipmentService;
-	 }
-
-	 public void setShipmentService(String shipmentService) {
-		 this.shipmentService = shipmentService;
-	 }
-
-	 public String getPaymentService() {
-		 return paymentService;
-	 }
-
-	 public void setPaymentService(String paymentService) {
-		 this.paymentService = paymentService;
-	 }	
-	 
 	 /**
 	  * Split the id from the uri
 	  * The id should be after the last slash ("/") of the uri.
@@ -668,12 +669,12 @@ public class OrderResource {
 	 }
 	 
 	 /**
-	  * 
-	  * @param ob
-	  * @param request
-	  * @param accept
-	  * @param c
-	  * @return
+	  * Evaluate precondition for the etag for GET method
+	  * @param ob object (either Order, Orders, or Shipment)
+	  * @param request request
+	  * @param accept type of content
+	  * @param c class of the object
+	  * @return response with the etag
 	  */
 	 public Response returnWithETagGET(Object ob, javax.ws.rs.core.Request request, String accept, Class c){
 		 EntityTag etag = new EntityTag((ob.hashCode()+accept).hashCode()+"");
@@ -693,14 +694,13 @@ public class OrderResource {
 	 }
 	 
 	 /**
-	  * 
-	  * @param ob
-	  * @param request
-	  * @param accept
-	  * @param c
-	  * @return
+	  * Evaluate precondition for the etag for PUT method
+	  * @param ob object (either Order, Orders, or Shipment)
+	  * @param request request
+	  * @return response with the etag
 	  */
 	 public Response returnWithETagPUT(Object ob, javax.ws.rs.core.Request request){
+
 		 EntityTag etag = new EntityTag(Integer.toString(ob.hashCode()));
 		 Response.ResponseBuilder builder = request.evaluatePreconditions(etag);
 		 if (builder == null){
@@ -710,4 +710,22 @@ public class OrderResource {
 		 
 		 return builder.build();
 	 }
+	 
+	 /**getters and setters*/
+	 public String getShipmentService() {
+		 return shipmentService;
+	 }
+
+	 public void setShipmentService(String shipmentService) {
+		 this.shipmentService = shipmentService;
+	 }
+
+	 public String getPaymentService() {
+		 return paymentService;
+	 }
+
+	 public void setPaymentService(String paymentService) {
+		 this.paymentService = paymentService;
+	 }	
+	 
 }
