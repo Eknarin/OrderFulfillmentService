@@ -1,5 +1,6 @@
 package org.ku.orderfulfillment.server;
 
+import java.io.IOException;
 import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
@@ -7,6 +8,7 @@ import javax.servlet.DispatcherType;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
+import org.eclipse.jetty.security.JDBCLoginService;
 import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.authentication.DigestAuthenticator;
 import org.eclipse.jetty.server.Handler;
@@ -57,7 +59,7 @@ public class JettyMain {
 		server = new Server( port );
 		
 		ServletContextHandler context = new ServletContextHandler( ServletContextHandler.SESSIONS );
-		context.setContextPath("/ordf");
+		context.setContextPath("/fulfillment");
 		
 		ServletHolder holder = new ServletHolder( org.glassfish.jersey.servlet.ServletContainer.class );
 		
@@ -82,11 +84,12 @@ public class JettyMain {
 	 * Set the context to be a security context.
 	 * @param handler handler to be set.
 	 * @return security handler
+	 * @throws IOException 
 	 */
-	private static Handler getSecurityHandler(ServletContextHandler handler) {
+	private static Handler getSecurityHandler(ServletContextHandler handler) throws IOException {
 		// params to LoginService are realm name and properties file.
 
-		 LoginService loginService = new HashLoginService("myrealm", "src/OrdfRealm.properties");
+		 LoginService loginService = new JDBCLoginService("myrealm", "src/OrdfRealm.properties");
 		 server.addBean( loginService );
 
 		 Constraint constraint = new Constraint();

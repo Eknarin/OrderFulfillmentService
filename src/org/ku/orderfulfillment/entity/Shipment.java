@@ -108,4 +108,11 @@ public class Shipment implements Serializable {
 	public void setItems(ShipmentItems items) {
 		this.items = items;
 	}
+	
+	@Override
+	public int hashCode(){
+		String s = "" + id + type + courier_name + courier_address
+				+ receive_name + receive_address + items;
+		return s.hashCode();
+	}
 }

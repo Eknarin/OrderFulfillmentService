@@ -9,7 +9,6 @@ import javax.persistence.Persistence;
 
 import org.ku.orderfulfillment.service.DaoFactory;
 import org.ku.orderfulfillment.service.OrderDao;
-import org.ku.orderfulfillment.service.UserDao;
 
 /**
  * JpaDaoFactory is a factory for DAO that use the Java Persistence API (JPA)
@@ -24,7 +23,6 @@ public class JpaDaoFactory extends DaoFactory {
 	
 	/** instance of the entity DAO */
 	private OrderDao orderDao;
-	private UserDao userDao;
 	
 	private final EntityManagerFactory emf;
 	private EntityManager em;
@@ -44,17 +42,11 @@ public class JpaDaoFactory extends DaoFactory {
 		em = emf.createEntityManager();
 		
 		orderDao = new JpaOrderDao( em );
-		userDao = new JpaUserDao( em );
 	}
 	
 	@Override
 	public OrderDao getOrderDao() {
 		return orderDao;
-	}
-	
-	@Override
-	public UserDao getUserDao() {
-		return userDao;
 	}
 	
 	@Override

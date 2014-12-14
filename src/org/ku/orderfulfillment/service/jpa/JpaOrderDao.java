@@ -39,17 +39,25 @@ public class JpaOrderDao implements OrderDao {
 	
 	/** add orders for testing. */
 	private void createTestOrder( ) {
-		long id = 999; // usually we should let JPA set the id
-		if (find(id) == null) {
-			List<Item> list = new ArrayList<Item>();
-			list.add(new Item(1,"Pig", 80, "Piggy", 30, 2));
-			list.add(new Item(2,"Fish", 10, "Fishy", 5, 10));
-			list.add(new Item(3,"Dog", 20, "Doggy", 34.5, 3));
-			Items items = new Items(list);
-			Order test = new Order(1234L, items, "EMS", "BB", "BB-HOME", "Kyuuri", "Kyuuri-Home",23,24,320);
-			test.setId(id);
-			test.setStatus(Order.FULLFILLED);
-			save(test);
+		long id = 1003; // usually we should let JPA set the id
+		while(true){
+			if (find(id) == null) {
+				List<Item> list = new ArrayList<Item>();
+				list.add(new Item(1,"Pig", 80, "Piggy", 30, 2));
+				list.add(new Item(2,"Fish", 10, "Fishy", 5, 10));
+				list.add(new Item(3,"Dog", 20, "Doggy", 34.5, 3));
+				Items items = new Items(list);
+				Order test = new Order(1234L, items, "EMS", "BB", "BB-HOME", "Kyuuri", "Kyuuri-Home","Kyuuri@kyuuri.com",320);
+				test.setId(id);
+				//test.setStatus(Order.FULLFILLED);
+				if(id < 1006) test.setStatus(Order.CANCELED);
+				else if(id < 1009) test.setStatus(Order.IN_PROGRESS);
+				else if(id < 10012) test.setStatus(Order.FULLFILLED);
+				else if(id < 10015) test.setStatus(Order.SHIPPING);
+				save(test);
+			}
+			id++;
+			if(id == 1020) break;
 		}
 	}
 

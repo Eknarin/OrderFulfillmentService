@@ -46,15 +46,14 @@ public class Order implements Serializable {
 	private String shipmentURI;
 	private String paymentURI;
 	private String orderDate;
-	private String shipDate;
+	private String fulfillDate;
 	private String status;
 	private String type;
 	private String courier_name;
 	private String courier_address;
 	private String receive_name;
 	private String receive_address;
-	private long recipientID;
-	private long senderID;
+	private String merchant_email;
 	private double amount;
 	private Items items;
 
@@ -63,13 +62,13 @@ public class Order implements Serializable {
 	public Order() { }
 	
 	/**constructor*/
-	public Order(Long exID, Items itemList,String t, String cn, String ca, String rn, String ra,long recID, long senID, double amt) {
+	public Order(Long exID, Items itemList,String t, String cn, String ca, String rn, String ra,String merEmail, double amt) {
 		eCommerceOrderID = exID;
 		shipmentID = -1;
 		paymentID = -1;
 		shipmentURI = "-";
 		orderDate = (new Date()).toString();
-		shipDate = "-";
+		fulfillDate = "-";
 		status = Order.WAITING;
 		items = itemList;
 		type = t;
@@ -77,8 +76,7 @@ public class Order implements Serializable {
 		courier_address = ca;
 		receive_name = rn;
 		receive_address = ra;
-		recipientID = recID;
-		senderID = senID;
+		merchant_email = merEmail;
 		amount = amt;
 	}
 
@@ -134,11 +132,8 @@ public class Order implements Serializable {
 		if(update.getReceive_name() != null) 
 			this.setReceive_name(update.getReceive_name());
 		
-		if(update.getRecipientID() >= 0) 
-			this.setRecipientID(update.getRecipientID());
-		
-		if(update.getSenderID() >= 0) 
-			this.setSenderID(update.getSenderID());
+		if(update.getMerchant_email() != null) 
+			this.setMerchant_email(update.getMerchant_email());
 		
 		if(update.getAmount() > 0) 
 			this.setAmount(update.getAmount());
@@ -212,12 +207,12 @@ public class Order implements Serializable {
 		this.orderDate = orderDate;
 	}
 
-	public String getShipDate() {
-		return shipDate;
+	public String getFulfillDate() {
+		return fulfillDate;
 	}
 
-	public void setShipDate(String shipDate) {
-		this.shipDate = shipDate;
+	public void setFulfillDate(String shipDate) {
+		this.fulfillDate = shipDate;
 	}
 
 	public String getStatus() {
@@ -276,20 +271,12 @@ public class Order implements Serializable {
 		this.receive_address = receive_address;
 	}
 
-	public long getRecipientID() {
-		return recipientID;
+	public String getMerchant_email() {
+		return merchant_email;
 	}
 
-	public void setRecipientID(long recipientID) {
-		this.recipientID = recipientID;
-	}
-
-	public long getSenderID() {
-		return senderID;
-	}
-
-	public void setSenderID(long senderID) {
-		this.senderID = senderID;
+	public void setMerchant_email(String merchant_email) {
+		this.merchant_email = merchant_email;
 	}
 
 	public double getAmount() {
@@ -306,6 +293,16 @@ public class Order implements Serializable {
 
 	public void setPaymentURI(String paymentURI) {
 		this.paymentURI = paymentURI;
+	}
+	
+	@Override
+	public int hashCode(){
+		String s = "" + id + eCommerceOrderID + shipmentID + paymentID
+				+ shipmentURI + paymentURI + orderDate + fulfillDate
+				+ status + type + courier_name + courier_address
+				+ receive_name + receive_address + merchant_email
+				+ amount + items;
+		return s.hashCode();
 	}
 	
 }

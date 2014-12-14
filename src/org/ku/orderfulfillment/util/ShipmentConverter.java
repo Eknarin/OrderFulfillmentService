@@ -56,7 +56,6 @@ public class ShipmentConverter {
 
 		for (Item i : items.getItemList()) {
 			ShipmentItem si = new ShipmentItem();
-			si.setId(i.getId());
 			si.setName(i.getName());
 			si.setQuantity(i.getQuantity());
 			si.setWeight(i.getWeight());

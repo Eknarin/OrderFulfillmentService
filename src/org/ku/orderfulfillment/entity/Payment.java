@@ -22,10 +22,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Payment implements Serializable {
 	
+	public static String SUCCESS = "success";
+	
 	@XmlAttribute
 	private long id;
-	private long recipientID;
-	private long senderID;
+	private String merchant_email;
+	private long order_id;
 	private double amount;
 	private String status;
 
@@ -40,20 +42,20 @@ public class Payment implements Serializable {
 		this.id = id;
 	}
 
-	public long getRecipientID() {
-		return recipientID;
+	public String getMerchant_email() {
+		return merchant_email;
 	}
 
-	public void setRecipientID(long recipientID) {
-		this.recipientID = recipientID;
+	public void setMerchant_email(String merchant_email) {
+		this.merchant_email = merchant_email;
 	}
 
-	public long getSenderID() {
-		return senderID;
+	public long getOrder_id() {
+		return order_id;
 	}
 
-	public void setSenderID(long senderID) {
-		this.senderID = senderID;
+	public void setOrder_id(long order_id) {
+		this.order_id = order_id;
 	}
 
 	public double getAmount() {

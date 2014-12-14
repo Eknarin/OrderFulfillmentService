@@ -33,4 +33,9 @@ public class Orders {
 	public Orders(List<Order> list){
 		orders = list;
 	}
+	
+	@Override
+	public int hashCode(){
+		return orders.hashCode();
+	}
 }

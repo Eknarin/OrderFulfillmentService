@@ -37,8 +37,8 @@ public class PaymentConverter {
 	 */
 	public Payment orderToPayment(Order o) {
 		Payment pay = new Payment();
-		pay.setRecipientID(o.getRecipientID());
-		pay.setSenderID(o.getSenderID());
+		pay.setOrder_id(o.geteCommerceOrderID());
+		pay.setMerchant_email(o.getMerchant_email());
 		pay.setAmount(o.getAmount());
 		return pay;
 	}
@@ -48,7 +48,22 @@ public class PaymentConverter {
 	 * @param payment payment
 	 * @return convreted xml string
 	 */
-	public String paymentmentToStringXML(Payment payment) {
+	public String paymentToStringXML(Payment payment) {
+		JAXBContext context;
+		StringWriter sw = new StringWriter();
+		try {
+			context = JAXBContext.newInstance(Payment.class);
+			Marshaller marsahller = (Marshaller) context.createMarshaller();
+			marsahller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+			marsahller.marshal(payment, sw);
+			return sw.toString();
+		} catch (JAXBException e) {
+			System.out.println("Cannot marshal payment");
+		}
+		return null;
+	}
+
+	public String paymentToStrigJson(Payment payment) {
 		JAXBContext context;
 		StringWriter sw = new StringWriter();
 		try {
