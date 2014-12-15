@@ -126,9 +126,9 @@ Order fulfiller select delete the specific order from the order list. The order 
 
 ## Design
 * [Domain Design of Order](https://docs.google.com/drawings/d/1d1F-2GIwgM1IFwb965FvPROm4TsFpRhgsky5ZbVx0i4/edit?usp=sharing)
-* [SSD:Place order](https://docs.google.com/drawings/d/1XZY_FO9gRhPT2xQOgvdKUU1Gy6yEnUnTmgivQnZfEsQ/edit?usp=sharing)
-* [SSD:Get order status](https://docs.google.com/drawings/d/1U-1y4WC9OOypi7_ME-ieggCHqoAw2igp735n1NtPqyY/edit?usp=sharing)
-* [SSD:Update Order](https://docs.google.com/drawings/d/12zj5KmVS9yWLgFNWEQY1IOlcXtSIw07xulZCbQDIIdY/edit?usp=sharing)
+* [SSD:Make order](https://docs.google.com/drawings/d/18OjOVGN12oBs2m6lenH51n527tP2X9RfK29hU6keLUg/edit?usp=sharing)
+* [SSD:Handle order](https://docs.google.com/drawings/d/1qLBuWxm7wIJXEChVLZKf9mn6xzXKYoXsWolnaYvyBQo/edit?usp=sharing)
+* [SSD:Track order](https://docs.google.com/drawings/d/1n6GAvvjoSPLHm4o9bPlpngLyFRpMfCPDBoY5JCPGofk/edit?usp=sharing)
  
 ## Mockup
 * [Order List](https://docs.google.com/drawings/d/1CE-hldA53lkfRboRw5UZ3WaPl3WOZ8NPvskR2wAJgtw/edit?usp=sharing)
