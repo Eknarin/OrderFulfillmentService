@@ -1,6 +1,6 @@
 # Order Fulfillment Service
  Our service is made for receiving orders which come from the e-commerce, keep those order, wait to be fulfilled and also track those order until they are fulfilled or approved and the e-commerce can check their orders' status. 
- This service requires other services to succeed its goal such as Product Service from the e-commerce.
+ This service requires other services to succeed its goal such as Payment Service and Shipment Service.
 
 ## What is Order Fulfillment ?
 * Order fulfillment is the complete process from point of sales inquiry to delivery of a product to the customer. Sometimes Order Fulfillment is used to simply describe the act of distribution (logistics) or the shipping function, but in the broader sense it refers to the way firms respond to customer orders, and the process they take to move products from those orders, to the customer.
@@ -16,8 +16,8 @@
 * E-commerce
 ```
  The e-commerce wants to place an order to the service.
+ The e-commerce wants to ask for a shipment cost.
  The e-commerce wants to get the placed order.
- The e-commerce wants to update the placed order.
  The e-commerce wants to cancel the placed order.
 ```
 
@@ -25,8 +25,11 @@
 ```
  As an order fulfiller, I would like to see all the orders.
  As an order fulfiller, I would like to see the order by order id.
+ As an order fulfiller, I would like to verify payment status of the order(s).
+ As an order fulfiller, I would like to grab the order(s).
  As an order fulfiller, I would like to fulfill the order(s).
- As an order fulfiller, I would like to update the order's status.
+ As an order fulfiller, I would like to revert the order(s)' status.
+ As an order fulfiller, I would like to ship the order(s) to shipment service.
  As an order fulfiller, I would like to delete an order.
 ```
 
@@ -37,32 +40,19 @@ Stakeholder : E-commerce
 Success scenario : The order is created successfully.
 Description :
 E-commerce places an order which contains the list of product's id and other information to the service.
-The system creates the order according to the given order.
+The order also contains the amount which is already calculated with the shipment cost.
+The system send the request to payment service to create the payment.
+If the payment is created the system will create the order according to the given order.
 ```
-* UC2: See all orders
-```
-Stakeholder : Order fulfiller
-Success scenario : The  fulfiller can view all incoming orders.
-Description :
-The fulfiller select view all orders. The system show all incoming orders from all e-commerces
-and the status of each order to the order fulfiller.
-```
-* UC3: See specific order (by id)
-```
-Stakeholder : Order Fulfiller
-Success scenario : The fulfiller can view details of each specific order by order id.
-Description : 
-The fulfiller select specific order. The system show the details of that order and the status of it.
-```
-* UC4: Update order
+* UC2: Ask for shipment cost
 ```
 Stakeholder : E-commerce
-Success scenario : The order updated successfully.
+Success scenario : The e-commerce successfully get the shipment cost.
 Description : 
-E-commerce send the request to update the order. The system update the order.
-(Note : The e-commerce will be able to update that order only when it is in waiting status.)
+E-commerce send the request to get the order shipment cost. The system send the request
+to ask shipment service and return back to the e-commerce.
 ```
-* UC5: Cancel order
+* UC3: Cancel order
 ```
 Stakeholder : E-commerce
 Success scenario : The order canceled successfully.
@@ -70,21 +60,61 @@ Description :
 E-commerce send the request to cancel the order. The system cancel the order.
 (Note : The e-commerce will be able to cancel that order only when it is in waiting status.)
 ```
-* UC6: Fulfill order
+* UC4: See all orders
+```
+Stakeholder : Order fulfiller
+Success scenario : The  fulfiller can view all incoming orders.
+Description :
+The fulfiller select view all orders. The system show all incoming orders from all e-commerces
+and the status of each order to the order fulfiller.
+```
+* UC5: See specific order (by id)
+```
+Stakeholder : Order Fulfiller
+Success scenario : The fulfiller can view details of each specific order by order id.
+Description : 
+The fulfiller select specific order. The system show the details of that order and the status of it.
+```
+* UC6: Verify payment status of the order
 ```
 Stakeholder : Order Fulfiller 
-Success scenario : The order was fulfilled(approved) successfully, order's status changed to "Fulfilled"
+Success scenario : The order status is updated to "in queue" successfully.
 Description :
-The order fulfiller select fulfill or approve the order. The order's status changes to "Fulfilled".
+Order fulfiller select verify payment of an order from the order list.
+The system send the request to ask payment service.
+If the status of that payment is success. The status of the order will be updated
+from "pending payment" to "in queue".
 ```
-* UC7: Get order’s status 
+* UC7: Grab order
 ```
-Stakeholder : E-commerce
-Success scenario : The order's status responses to the e-commerce.
+Stakeholder : Order Fulfiller 
+Success scenario : The order was grabed successfully, order's status changed to "in progress"
 Description :
-E-commerce send the request to get the order's status. The system response the status back.
+The order fulfiller select grab the order. The order's status changes to "in progress".
 ```
-* UC8: Delete Order
+* UC8: Fulfill order
+```
+Stakeholder : Order Fulfiller 
+Success scenario : The order was fulfilled(approved) successfully, order's status changed to "fulfilled"
+Description :
+The order fulfiller select fulfill or approve the order. The order's status changes to "fulfilled".
+```
+* UC9: Revert order's status
+```
+Stakeholder : Order Fulfiller 
+Success scenario : The order's status was revert back 1 step.
+Description :
+The order fulfiller select undo the order. The order's status changes back 1 step before the current status.
+```
+* UC10: Ship order
+```
+Stakeholder : Order Fulfiller 
+Success scenario : The order was shipped to shipment service successfully, order's status changed to "shipping"
+Description :
+The order fulfiller select ship the order. The system send the request to the shipment service.
+If success, the order's status changes to "shipping".
+```
+* UC11: Delete Order
 ```
 Stakeholder : Order Fulfiller 
 Success scenario : The order is deleted successfully.
@@ -106,7 +136,7 @@ Order fulfiller select delete the specific order from the order list. The order 
 
 ## Out of scope
 * Handle many order fulfillers. (Now we're assuming that there is only 1 order fulfiller.)
-* Order Fulfiller Authentication
+* Order Fulfiller Authentication (DONE)
 
 ## Group Member
 * Eknarin Thirayothin	   5510546239
