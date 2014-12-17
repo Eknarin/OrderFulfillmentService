@@ -47,7 +47,7 @@ public class JpaOrderDao implements OrderDao {
 				list.add(new Item(2,"Fish", 10, "Fishy", 5, 10));
 				list.add(new Item(3,"Dog", 20, "Doggy", 34.5, 3));
 				Items items = new Items(list);
-				Order test = new Order(1234L, items, "EMS", "BB", "BB-HOME", "Kyuuri", "Kyuuri-Home","Kyuuri@kyuuri.com",320);
+				Order test = new Order(1234L, items, "EMS", "BB", "BB-HOME", "Kyuuri", "Kyuuri-Home",320);
 				test.setId(id);
 				//test.setStatus(Order.FULLFILLED);
 				if(id < 1006) test.setStatus(Order.CANCELED);
