@@ -8,6 +8,7 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -87,6 +88,7 @@ public class OrderResource {
 
 	/** constructor */
 	public OrderResource() {
+		TimeZone.setDefault(TimeZone.getTimeZone("ICT"));
 		dao = DaoFactory.getInstance().getOrderDao();
 		logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 		shipConverter = new ShipmentConverter();
@@ -235,7 +237,7 @@ public class OrderResource {
 			o.seteCommerceOrderID(order.geteCommerceOrderID());
 			o.setShipmentID(-1); // does not have yet
 			o.setShipmentURI("-"); // does not have yet
-			o.setOrderDate((new Date()).toGMTString());
+			o.setOrderDate((new Date()).toString());
 			o.setFulfillDate("-"); // does not have yet
 			o.setStatus(Order.WAITING);
 			o.setType(order.getType());
@@ -342,7 +344,7 @@ public class OrderResource {
 		if (o != null) {
 			if (o.getStatus().equals(Order.IN_PROGRESS)) {
 				o.updateStatus(Order.FULLFILLED);
-				o.setFulfillDate((new Date()).toGMTString());
+				o.setFulfillDate((new Date()).toString());
 				dao.update(o);
 				// return Response.ok(uriInfo.getAbsolutePath()+"").build();
 				return returnWithETagPUT(o, request);
