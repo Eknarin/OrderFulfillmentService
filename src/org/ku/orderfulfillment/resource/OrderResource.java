@@ -382,7 +382,6 @@ public class OrderResource {
 				}
 
 				dao.update(o);
-				// return Response.ok(uriInfo.getAbsolutePath()+"").build();
 				return returnWithETagPUT(o, request);
 			}
 			return BAD_REQUEST;
