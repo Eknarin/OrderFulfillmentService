@@ -96,26 +96,6 @@ public class JettyMain {
 		 constraint.setName("auth");
 		 constraint.setAuthenticate( true );
 		 constraint.setRoles( new String[] {"fulfiller", "admin","e-commerce"} );
-		 
-		 ConstraintMapping contraint1 = new ConstraintMapping();
-			contraint1.setMethodOmissions(new String[]{"OPTIONS","HEAD", "GET"});
-			contraint1.setPathSpec("/orders/{id}/kurel");
-			contraint1.setConstraint(constraint);
-			
-			ConstraintMapping constraint2 = new ConstraintMapping();
-			constraint2.setMethodOmissions(new String[]{"OPTIONS","HEAD","GET" });
-			constraint2.setPathSpec("/orders/kurel");
-			constraint2.setConstraint(constraint);
-			
-			ConstraintMapping constraint3 = new ConstraintMapping();
-			constraint3.setMethodOmissions(new String[]{"OPTIONS","HEAD","POST"});
-			constraint3.setPathSpec("/orders/shipmentcost/kurel");
-			constraint3.setConstraint(constraint);
-			
-			ConstraintMapping constraint4 = new ConstraintMapping();
-			constraint4.setMethodOmissions(new String[]{"OPTIONS","HEAD","POST"});
-			constraint4.setPathSpec("/orders/payment/kurel");
-			constraint4.setConstraint(constraint);
 
 		 // A mapping of resource paths to constraints
 		 ConstraintMapping mapping = new ConstraintMapping();
@@ -123,8 +103,7 @@ public class JettyMain {
 		 mapping.setConstraint( constraint );
 		 ConstraintSecurityHandler securityHandler = new ConstraintSecurityHandler();
 		 // setConstraintMappings requires an array or List as argument
-		 securityHandler.setConstraintMappings( new ConstraintMapping[] { contraint1, 
-					constraint2, constraint3, constraint4 } );
+		 securityHandler.setConstraintMappings( new ConstraintMapping[] { mapping } );
 		 securityHandler.setAuthenticator( new DigestAuthenticator());
 		 securityHandler.setLoginService(loginService);
 
