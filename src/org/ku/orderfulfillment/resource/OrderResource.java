@@ -8,7 +8,6 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -89,7 +88,6 @@ public class OrderResource {
 
 	/** constructor */
 	public OrderResource() {
-		TimeZone.setDefault(TimeZone.getTimeZone("ICT"));
 		dao = DaoFactory.getInstance().getOrderDao();
 		logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 		shipConverter = new ShipmentConverter();

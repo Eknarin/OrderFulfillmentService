@@ -52,7 +52,7 @@ public class JpaOrderDao implements OrderDao {
 				Items items = new Items(list);
 				Link l = null;
 				try {
-					l = new Link("self",new URI("128.199.175.223/fulfillment/orders/" + id));
+					l = new Link("self",new URI("http://128.199.175.223:8000/fulfillment/orders/" + id));
 				} catch (URISyntaxException e) {
 					e.printStackTrace();
 				}
