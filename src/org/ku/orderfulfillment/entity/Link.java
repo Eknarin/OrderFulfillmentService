@@ -1,5 +1,6 @@
 package org.ku.orderfulfillment.entity;
 
+import java.io.Serializable;
 import java.net.URI;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -14,7 +15,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name="link")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Link {
+public class Link implements Serializable{
 	@XmlAttribute
 	private String rel;
 	@XmlAttribute
