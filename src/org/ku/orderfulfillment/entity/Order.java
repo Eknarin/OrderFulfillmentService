@@ -40,6 +40,7 @@ public class Order implements Serializable {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@XmlAttribute
 	private long id;
+	private Link link;
 	private long eCommerceOrderID;
 	private long shipmentID;
 	private String shipmentURI;
@@ -59,7 +60,7 @@ public class Order implements Serializable {
 	public Order() { }
 	
 	/**constructor*/
-	public Order(Long exID, Items itemList,String t, String cn, String ca, String rn, String ra, double amt) {
+	public Order(Long exID, Items itemList,String t, String cn, String ca, String rn, String ra, double amt, Link lin) {
 		eCommerceOrderID = exID;
 		shipmentID = -1;
 		shipmentURI = "-";
@@ -72,7 +73,7 @@ public class Order implements Serializable {
 		courier_address = ca;
 		receive_name = rn;
 		receive_address = ra;
-
+		link = lin;
 		amount = amt;
 	}
 
@@ -261,13 +262,21 @@ public class Order implements Serializable {
 		this.amount = amount;
 	}
 	
+	public Link getLink() {
+		return link;
+	}
+
+	public void setLink(Link link) {
+		this.link = link;
+	}
+
 	@Override
 	public int hashCode(){
 		String s = "" + id + eCommerceOrderID + shipmentID
 				+ shipmentURI + orderDate + fulfillDate
 				+ status + type + courier_name + courier_address
 				+ receive_name + receive_address
-				+ amount + items;
+				+ amount + link + items;
 		return s.hashCode();
 	}
 	

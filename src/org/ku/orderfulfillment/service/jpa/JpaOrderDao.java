@@ -1,5 +1,7 @@
 package org.ku.orderfulfillment.service.jpa;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +14,7 @@ import javax.persistence.Query;
 
 import org.ku.orderfulfillment.entity.Item;
 import org.ku.orderfulfillment.entity.Items;
+import org.ku.orderfulfillment.entity.Link;
 import org.ku.orderfulfillment.entity.Order;
 import org.ku.orderfulfillment.service.OrderDao;
 
@@ -37,27 +40,31 @@ public class JpaOrderDao implements OrderDao {
 		createTestOrder( );
 	}
 	
-	/** add orders for testing. */
+	/** add orders for testing only. */
 	private void createTestOrder( ) {
 		long id = 1003; // usually we should let JPA set the id
 		while(true){
 			if (find(id) == null) {
 				List<Item> list = new ArrayList<Item>();
-				list.add(new Item(1,"Pig", 80, "Piggy", 30, 2));
-				list.add(new Item(2,"Fish", 10, "Fishy", 5, 10));
-				list.add(new Item(3,"Dog", 20, "Doggy", 34.5, 3));
+				list.add(new Item(1,"Tent", 80, "Tent for testing", 30, 2));
+				list.add(new Item(2,"Sleeping Bag", 10, "Sleeping bag for testing", 5, 10));
+				list.add(new Item(3,"Lighter", 20, "Lighter for testing", 34.5, 3));
 				Items items = new Items(list);
-				Order test = new Order(1234L, items, "EMS", "BB", "BB-HOME", "Kyuuri", "Kyuuri-Home",320);
+				Link l = null;
+				try {
+					l = new Link("self",new URI("128.199.175.223/fulfillment/orders/" + id));
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+				}
+				Order test = new Order(1234L, items, "EMS", "Sabaii-Test", "KU", "Kyuuri", "Kyuuri-Home",320,l);
 				test.setId(id);
-				//test.setStatus(Order.FULLFILLED);
 				if(id < 1006) test.setStatus(Order.CANCELED);
 				else if(id < 1009) test.setStatus(Order.IN_PROGRESS);
 				else if(id < 10012) test.setStatus(Order.FULLFILLED);
-				else if(id < 10015) test.setStatus(Order.SHIPPING);
 				save(test);
 			}
 			id++;
-			if(id == 1020) break;
+			if(id == 1015) break;
 		}
 	}
 

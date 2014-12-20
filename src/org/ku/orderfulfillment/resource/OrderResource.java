@@ -43,6 +43,7 @@ import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
 import org.json.JSONObject;
 import org.json.XML;
+import org.ku.orderfulfillment.entity.Link;
 import org.ku.orderfulfillment.entity.Order;
 import org.ku.orderfulfillment.entity.Orders;
 import org.ku.orderfulfillment.entity.Shipment;
@@ -246,15 +247,17 @@ public class OrderResource {
 			o.setReceive_name(order.getReceive_name());
 			o.setReceive_address(order.getReceive_address());
 			o.setAmount(order.getAmount());
+			try {
+				o.setLink(new Link("self",new URI(uriInfo.getAbsolutePath() + "/"+ o.getId())));
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
 			o.setItems(order.getItems());
 
 			boolean success = dao.save(o);
 			if (success) {
 				try {
-					return Response
-							.created(
-									new URI(uriInfo.getAbsolutePath() + ""
-											+ o.getId())).build();
+					return Response.created(new URI(uriInfo.getAbsolutePath() + "/"+ o.getId())).build();
 				} catch (URISyntaxException e) {
 					e.printStackTrace();
 				}
