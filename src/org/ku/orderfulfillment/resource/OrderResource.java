@@ -638,8 +638,15 @@ public class OrderResource {
 		EntityTag etag = new EntityTag(Integer.toString(ob.hashCode()));
 		Response.ResponseBuilder builder = request.evaluatePreconditions(etag);
 		if (builder == null) {
-			builder = Response.ok().header("Location",
-					uriInfo.getAbsolutePath() + "");
+			
+			//Location : http://128.199.175.223:8000/fulfillment/orders/{id}/something
+			String location = uriInfo.getAbsolutePath() + "";
+			location = location.replace("grab", "");
+			location = location.replace("fulfill", "");
+			location = location.replace("undo", "");
+			location = location.replace("ship", "");
+			location = location.replace("cancel", "");
+			builder = Response.ok().header("Location",location);
 		}
 		builder.cacheControl(cache);
 
