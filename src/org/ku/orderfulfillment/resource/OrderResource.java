@@ -376,8 +376,11 @@ public class OrderResource {
 				} else if (status.equals(Order.FULLFILLED)) {
 					o.setFulfillDate("-");
 					o.setStatus(Order.IN_PROGRESS);
-				} else if (status.equals(Order.SHIPPING)) {
-					o.setStatus(Order.FULLFILLED);
+				} else if (status.equals(Order.SHIPPING)){
+					boolean success = cancelShipmentOrder(o.getShipmentID());
+					if(success){
+						o.setStatus(Order.FULLFILLED);
+					}
 				}
 
 				dao.update(o);
@@ -438,7 +441,6 @@ public class OrderResource {
 		Request request = client.newRequest(shipmentService + "/shipments");
 		Shipment shipment = shipConverter.orderToShipment(order);
 		String shipmentXML = shipConverter.shipmentToStringXML(shipment);
-		System.out.println(shipmentXML);
 
 		StringContentProvider content = new StringContentProvider(shipmentXML);
 		request.method(HttpMethod.POST);
@@ -471,6 +473,43 @@ public class OrderResource {
 		}
 
 		return "";
+	}
+	
+	/**
+	 * Send the request to shipment service for canceling the shipment.
+	 * 
+	 * @param id shipment id
+	 * @return true if success otherwise false
+	 */
+	public boolean cancelShipmentOrder(Long id) {
+		Request request = client.newRequest(shipmentService + "/shipments/" + id);
+		request.method(HttpMethod.DELETE);
+
+		String token = "";
+		try {
+			FileInputStream file = new FileInputStream(
+					"/home/sb/access_token.txt");
+			DataInputStream datafile = new DataInputStream(file);
+			token = datafile.readLine();
+			datafile.close();
+			file.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		request.header(HttpHeader.AUTHORIZATION, token);
+		ContentResponse res;
+		try {
+			res = request.send();
+			if (res.getStatus() == Status.OK.getStatusCode()) {
+				return true;
+			}
+
+		} catch (InterruptedException | TimeoutException | ExecutionException e) {
+			logger.info(e.toString());
+		}
+
+		return false;
 	}
 
 	/**
