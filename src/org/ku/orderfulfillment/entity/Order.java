@@ -40,7 +40,9 @@ public class Order implements Serializable {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@XmlAttribute
 	private long id;
+	@XmlElement(name = "link")
 	private Link linkself;
+	@XmlElement(name = "link")
 	private Link linkship;
 	private long eCommerceOrderID;
 	private long shipmentID;
