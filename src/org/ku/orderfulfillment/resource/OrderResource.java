@@ -379,6 +379,7 @@ public class OrderResource {
 				} else if (status.equals(Order.SHIPPING)){
 					boolean success = cancelShipmentOrder(o.getShipmentID());
 					if(success){
+						o.setShipmentID(-1);
 						o.getLinkship().setHref(null);
 						o.setStatus(Order.FULLFILLED);
 					}
