@@ -40,10 +40,10 @@ public class Order implements Serializable {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@XmlAttribute
 	private long id;
-	private Link link;
+	private Link linkself;
+	private Link linkship;
 	private long eCommerceOrderID;
 	private long shipmentID;
-	private String shipmentURI;
 	private String orderDate;
 	private String fulfillDate;
 	private String status;
@@ -60,10 +60,9 @@ public class Order implements Serializable {
 	public Order() { }
 	
 	/**constructor*/
-	public Order(Long exID, Items itemList,String t, String cn, String ca, String rn, String ra, double amt, Link lin) {
+	public Order(Long exID, Items itemList,String t, String cn, String ca, String rn, String ra, double amt, Link linself,Link linsh) {
 		eCommerceOrderID = exID;
 		shipmentID = -1;
-		shipmentURI = "-";
 		orderDate = (new Date()).toString();
 		fulfillDate = "-";
 		status = Order.WAITING;
@@ -73,7 +72,8 @@ public class Order implements Serializable {
 		courier_address = ca;
 		receive_name = rn;
 		receive_address = ra;
-		link = lin;
+		linkself = linself;
+		linkship = linsh;
 		amount = amt;
 	}
 
@@ -174,14 +174,6 @@ public class Order implements Serializable {
 		this.shipmentID = shipmentID;
 	}
 
-	public String getShipmentURI() {
-		return shipmentURI;
-	}
-
-	public void setShipmentURI(String shipmentURI) {
-		this.shipmentURI = shipmentURI;
-	}
-
 	public String getOrderDate() {
 		return orderDate;
 	}
@@ -262,21 +254,28 @@ public class Order implements Serializable {
 		this.amount = amount;
 	}
 	
-	public Link getLink() {
-		return link;
+	public Link getLinkself() {
+		return linkself;
 	}
 
-	public void setLink(Link link) {
-		this.link = link;
+	public void setLinkself(Link link) {
+		this.linkself = link;
+	}
+
+	public Link getLinkship() {
+		return linkship;
+	}
+
+	public void setLinkship(Link link) {
+		this.linkship = link;
 	}
 
 	@Override
 	public int hashCode(){
-		String s = "" + id + eCommerceOrderID + shipmentID
-				+ shipmentURI + orderDate + fulfillDate
+		String s = "" + id + eCommerceOrderID + shipmentID + orderDate + fulfillDate
 				+ status + type + courier_name + courier_address
 				+ receive_name + receive_address
-				+ amount + link + items;
+				+ amount + linkself + linkship + items;
 		return s.hashCode();
 	}
 	

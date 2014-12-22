@@ -50,17 +50,18 @@ public class JpaOrderDao implements OrderDao {
 				list.add(new Item(2,"Sleeping Bag", 10, "Sleeping bag for testing", 5, 10));
 				list.add(new Item(3,"Lighter", 20, "Lighter for testing", 34.5, 3));
 				Items items = new Items(list);
-				Link l = null;
+				Link l1 = null;
+				Link l2 = null;
 				try {
-					l = new Link("self",new URI("http://128.199.175.223:8000/fulfillment/orders/" + id));
+					l1 = new Link("self",new URI("http://128.199.175.223:8000/fulfillment/orders/" + id));
+					l2 = new Link("ship",null);
 				} catch (URISyntaxException e) {
 					e.printStackTrace();
 				}
-				Order test = new Order(1234L, items, "EMS", "Sabaii-Test", "KU", "Kyuuri", "Kyuuri-Home",320,l);
+				Order test = new Order(230L+id, items, "EMS", "Sabaii-Test", "KU", "Kyuuri", "Kyuuri-Home",320,l1,l2);
 				test.setId(id);
 				if(id < 1006) test.setStatus(Order.CANCELED);
 				else if(id < 1009) test.setStatus(Order.IN_PROGRESS);
-				else if(id < 10012) test.setStatus(Order.FULLFILLED);
 				save(test);
 			}
 			id++;

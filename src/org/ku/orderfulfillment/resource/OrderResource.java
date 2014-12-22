@@ -235,7 +235,6 @@ public class OrderResource {
 		if (checkOrder(order)) {
 			o.seteCommerceOrderID(order.geteCommerceOrderID());
 			o.setShipmentID(-1); // does not have yet
-			o.setShipmentURI("-"); // does not have yet
 			o.setOrderDate((new Date()).toString());
 			o.setFulfillDate("-"); // does not have yet
 			o.setStatus(Order.WAITING);
@@ -245,16 +244,13 @@ public class OrderResource {
 			o.setReceive_name(order.getReceive_name());
 			o.setReceive_address(order.getReceive_address());
 			o.setAmount(order.getAmount());
-			try {
-				o.setLink(new Link("self",new URI(uriInfo.getAbsolutePath() + "/"+ o.getId())));
-			} catch (URISyntaxException e) {
-				e.printStackTrace();
-			}
 			o.setItems(order.getItems());
 
 			boolean success = dao.save(o);
 			if (success) {
 				try {
+					o.setLinkself(new Link("self",new URI(uriInfo.getAbsolutePath() + "/"+ o.getId())));
+					o.setLinkship(new Link("ship",null));
 					return Response.created(new URI(uriInfo.getAbsolutePath() + "/"+ o.getId())).build();
 				} catch (URISyntaxException e) {
 					e.printStackTrace();
@@ -415,7 +411,11 @@ public class OrderResource {
 				String location = sendShipmentOrder(o);
 				if (location.length() > 0) {
 					o.updateStatus(Order.SHIPPING);
-					o.setShipmentURI(location);
+					try {
+						o.getLinkship().setHref(new URI(location));
+					} catch (URISyntaxException e) {
+						e.printStackTrace();
+					}
 					o.setShipmentID(splitID(location));
 					dao.update(o);
 					// return Response.ok(uriInfo.getAbsolutePath()+"").build();
