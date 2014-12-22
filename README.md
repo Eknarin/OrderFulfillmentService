@@ -7,6 +7,11 @@
 * In simpler terms, Order Fulfillment is everything that a seller does from the moment an order for a product is received, to the customer having their purchase in their hands. Order Fulfillment also includes the processes involved in receiving products to sell, storing those products, and providing inventory control of those products.
 * From http://www.fulfillmentwarehouse.biz/what-is-fulfillment.asp
 
+## Demo
+* Service : http://128.199.175.223:8000/fulfillment/orders
+* Web-Admin : http://128.199.175.223/fulfillment<br>
+(Username : admin, Password : 12341234)
+
 ## Stakeholder
 * E-Commerce
 * Order Fulfiller
