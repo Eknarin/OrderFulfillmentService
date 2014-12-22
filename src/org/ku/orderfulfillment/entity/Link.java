@@ -16,9 +16,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name="link")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Link implements Serializable{
-	@XmlAttribute
+	@XmlAttribute(name = "rel")
 	private String rel;
-	@XmlAttribute
+	@XmlAttribute(name = "href")
 	private URI href;
 	
 	/**constructor*/

@@ -38,7 +38,7 @@ public class Order implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@XmlAttribute
+	@XmlAttribute(name = "id")
 	private long id;
 	@XmlElement(name = "link")
 	private Link linkself;

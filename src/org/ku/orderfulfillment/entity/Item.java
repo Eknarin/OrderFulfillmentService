@@ -18,7 +18,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Item implements Serializable{
 
-	@XmlAttribute
+	//@XmlAttribute(name = "id")
 	private long id;
 	private String name;
 	private double price;
